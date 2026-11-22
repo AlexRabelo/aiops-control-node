@@ -41,9 +41,10 @@ Se um playbook foi aplicado, execute novamente com o estado anterior ou use o m�
 
 ### 5. Restaurar conectividade SSH
 Se o host ficou inacessível:
-- Verifique se o container WSL2 está rodando: `wsl --list --running` (Windows)
-- Reinicie o container: `wsl --distribution <nome>` ou `wsl --shutdown` + iniciar novamente
-- Verifique se o `sshd` está rodando dentro do container
+- Verifique se o serviço SSH está rodando: `systemctl status ssh` ou `systemctl status sshd`
+- Verifique se a porta SSH está escutando: `ss -tulnp | grep 22`
+- Reinicie o serviço SSH se necessário: `sudo systemctl restart ssh` ou `sudo systemctl restart sshd`
+- Se o host for um container WSL2, gere a reinicialização a partir do host Windows: `wsl --distribution <nome>` ou `wsl --shutdown` + iniciar novamente
 
 ### 6. Registrar o incidente
 Adicione entrada em `logs/incidents/`:
@@ -53,7 +54,7 @@ YYYY-MM-DDTHH-MM-SSZ | host=<nome> | ação=<descrição> | impacto=<descrição
 ```
 
 ## Contatos de escalonamento
-- Operador principal: `labuser`
+- Operador principal: `ansible-ops`
 - Contato secundário: (definir conforme necessidade)
 
 ## Lista de verificação pós-incidente
@@ -61,4 +62,4 @@ YYYY-MM-DDTHH-MM-SSZ | host=<nome> | ação=<descrição> | impacto=<descrição
 - [ ] Nenhum arquivo em `/etc` foi deixado em estado inconsistente?
 - [ ] Serviços críticos (`sshd`, `systemd`, `chronyd`) estão rodando?
 - [ ] Logs de auditoria foram atualizados?
-- <|constraint|>constante de aprendizado foi capturado em MEMORY.md?
+- [ ] Constante de aprendizado capturada em `MEMORY.md`?

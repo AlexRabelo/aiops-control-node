@@ -46,11 +46,11 @@ Toda sugestão da IA deve conter:
 Exemplo de registro em `MEMORY.md`:
 
 ```
-- 2026-11-15 | IA sugeriu correção de hostname centos10 (host-fisico → centos10)
-  Evidência: hostnamectl reportou host-fisico; esperado centos10
-  Playbook: ansible/playbooks/hostname-correction.yml
-  Status: aguardando HITL para aplicar (--check --diff válido)
-  Rollback: hostnamectl set-hostname host-fisico
+- 2026-11-22 | Auditoria LPIC-1 confirmou hostnames válidos: centos10, amazonlinux-2023, rhel10, ubuntu, agents-lab
+  Evidência: hostnamectl reportou nomes corretos em todos os 5 hosts
+  Playbook: hostname-correction.yml não necessário (hostnames já válidos)
+  Status: descartado — sem ação pendente
+  Rollback: não aplicável
 ```
 
 ---
@@ -79,19 +79,19 @@ O operador revisa o diff do `--check --diff`, confirma o impacto e autoriza a ap
 
 ### 5.1. Princípio de menor privilégio no sudo
 
-Nos hosts gerenciados, o usuário `labuser` deve ter acesso restrito via `sudo` apenas aos comandos estritamente necessários ao Ansible. Nunca usar `NOPASSWD: ALL`.
+Nos hosts gerenciados, o usuário `ansible-ops` deve ter acesso restrito via `sudo` apenas aos comandos estritamente necessários ao Ansible. Nunca usar `NOPASSWD: ALL`.
 
 **Passo a passo em cada host:**
 
 ```bash
 # 1. Verifique os caminhos reais dos binários
-which hostnamectl cp tee reboot chmod chown
+which hostnamectl cp tee chmod chown
 
 # 2. Edite o sudoers
 sudo visudo
 
 # 3. Adicione ao final (ajuste os caminhos conforme o output do which):
-labuser ALL=(ALL) /usr/bin/hostnamectl, /usr/bin/cp, /usr/bin/tee, /usr/sbin/reboot, /usr/bin/chmod, /usr/bin/chown
+ansible-ops ALL=(ALL) /usr/bin/hostnamectl, /usr/bin/cp, /usr/bin/tee, /usr/bin/chmod, /usr/bin/chown
 ```
 
 **Resultado:** o usuário pode executar apenas esses 6 comandos como root, e **sempre requer senha** (não há `NOPASSWD`). Qualquer outro comando como root será negado.
@@ -166,7 +166,7 @@ Nunca remedia sem diagnóstico. Coletar antes de qualquer ação:
 ### Cloud / WSL2
 - Todos os hosts são containers WSL2 compartilhando kernel → ponto único de falha no host físico.
 - DNS: `generateResolvConf = false` em `/etc/wsl.conf` para controle determinístico.
-- SSH: todas as portas (2220–2260) expostas via `127.0.0.1` no host WSL.
+- SSH: todas as portas (2220–2260) escutam em `0.0.0.0` (todas as interfaces) — confirmado pela auditoria LPIC-1. Avaliar restrição para `127.0.0.1` se necessário.
 
 ### DevOps / Ansible
 - Playbooks idempotentes (mudança somente se necessário).
