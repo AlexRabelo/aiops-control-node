@@ -2,39 +2,42 @@
   "schemaVersion": 1,
   "ok": false,
   "command": "finalize",
-  "status": "skipped",
+  "status": "fail",
   "type": "architecture",
   "quality": "showcase",
   "specification": {
     "path": "/home/arabelo/projetos/aiops-control-node/.archify/arquitetura-aiops-20261122-160000/candidate.json",
-    "sha256": "f39779a080247b69d3aeaafe5e94723040d03360f82b16b524e68f64772566fa",
-    "bytes": 2778
+    "sha256": "6b318fb11d19a18f224711d82fb9471775a49c1ad1e1242424d01f591caf1f6c",
+    "bytes": 2810
   },
   "artifact": {
     "path": "/home/arabelo/projetos/aiops-control-node/docs/assets/arquitetura-aiops.html",
-    "sha256": "db23a0df93c5449495bed24398511c0dbba7c8f30dbde44d09712d7ea155df0b",
-    "bytes": 934340
+    "sha256": "3e697f5ac81cc33e188387e51d06e09600ed8f7a6bfb11dff50896fbfc8109a9",
+    "bytes": 934940
   },
   "gates": {
     "validate": "pass",
     "deliver": "pass",
     "check": "pass",
-    "browser-check": "skipped"
+    "browser-check": "fail"
   },
   "failedStage": "browser-check",
   "diagnostics": [
     {
-      "code": "viewer/chrome-unavailable",
-      "severity": "warning",
-      "message": "No supported browser found. Install Chrome/Chromium (or Microsoft Edge), or set ARCHIFY_CHROME to its executable path.",
+      "code": "viewer/evidence-path-conflict",
+      "severity": "error",
+      "message": "browser-check will not replace the existing unowned evidence path \"/home/arabelo/projetos/aiops-control-node/docs/assets/arquitetura-aiops.browser-check.json\".",
       "subject": {
-        "artifact": "/home/arabelo/projetos/aiops-control-node/docs/assets/arquitetura-aiops.html"
+        "artifact": "/home/arabelo/projetos/aiops-control-node/docs/assets/arquitetura-aiops.html",
+        "evidencePath": "/home/arabelo/projetos/aiops-control-node/docs/assets/arquitetura-aiops.browser-check.json"
       },
       "evidence": {
-        "executable": null
+        "reason": {
+          "code": "ownership-artifact-mismatch"
+        }
       },
       "supportedFixes": [
-        "set ARCHIFY_CHROME to a Chrome/Chromium executable (or Microsoft Edge) and rerun browser-check"
+        "move the conflicting file aside, or choose a separate --out-dir, then rerun browser-check"
       ]
     }
   ],
@@ -59,7 +62,7 @@
     "noticeText": null
   },
   "visualReview": "not-requested",
-  "durationMs": 1992,
+  "durationMs": 1871,
   "browserCheck": {
     "requested": true,
     "ran": false

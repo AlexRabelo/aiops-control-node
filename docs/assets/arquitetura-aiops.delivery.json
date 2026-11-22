@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "receiptId": "c02ffe56-fae8-4de6-a916-759ec9130a36",
+  "receiptId": "b54ada34-0503-4ce4-b1f5-adfff8bd1244",
   "status": "current",
   "command": "deliver",
   "type": "architecture",
   "input": "/home/arabelo/projetos/aiops-control-node/.archify/arquitetura-aiops-20261122-160000/candidate.json",
   "output": "/home/arabelo/projetos/aiops-control-node/docs/assets/arquitetura-aiops.html",
   "specification": {
-    "sha256": "f39779a080247b69d3aeaafe5e94723040d03360f82b16b524e68f64772566fa",
-    "bytes": 2778
+    "sha256": "6b318fb11d19a18f224711d82fb9471775a49c1ad1e1242424d01f591caf1f6c",
+    "bytes": 2810
   },
   "artifact": {
-    "sha256": "db23a0df93c5449495bed24398511c0dbba7c8f30dbde44d09712d7ea155df0b",
-    "bytes": 934340
+    "sha256": "3e697f5ac81cc33e188387e51d06e09600ed8f7a6bfb11dff50896fbfc8109a9",
+    "bytes": 934940
   }
 }

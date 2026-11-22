@@ -2,19 +2,19 @@
   "schemaVersion": 1,
   "ok": false,
   "command": "finalize",
-  "status": "skipped",
+  "status": "fail",
   "type": "architecture",
   "quality": "showcase",
-  "startedAt": "2026-11-22T19:08:12.067Z",
+  "startedAt": "2026-11-22T19:12:58.840Z",
   "specification": {
     "path": "/home/arabelo/projetos/aiops-control-node/.archify/arquitetura-aiops-20261122-160000/candidate.json",
-    "sha256": "f39779a080247b69d3aeaafe5e94723040d03360f82b16b524e68f64772566fa",
-    "bytes": 2778
+    "sha256": "6b318fb11d19a18f224711d82fb9471775a49c1ad1e1242424d01f591caf1f6c",
+    "bytes": 2810
   },
   "artifact": {
     "path": "/home/arabelo/projetos/aiops-control-node/docs/assets/arquitetura-aiops.html",
-    "sha256": "db23a0df93c5449495bed24398511c0dbba7c8f30dbde44d09712d7ea155df0b",
-    "bytes": 934340
+    "sha256": "3e697f5ac81cc33e188387e51d06e09600ed8f7a6bfb11dff50896fbfc8109a9",
+    "bytes": 934940
   },
   "stages": {
     "validate": {
@@ -38,8 +38,8 @@
         "ok": true,
         "command": "validate",
         "specification": {
-          "sha256": "f39779a080247b69d3aeaafe5e94723040d03360f82b16b524e68f64772566fa",
-          "bytes": 2778
+          "sha256": "6b318fb11d19a18f224711d82fb9471775a49c1ad1e1242424d01f591caf1f6c",
+          "bytes": 2810
         },
         "validation": {
           "checksPassed": 9,
@@ -54,7 +54,7 @@
     "deliver": {
       "status": "pass",
       "exitCode": 0,
-      "durationMs": 1565,
+      "durationMs": 1485,
       "command": [
         "/usr/bin/node",
         "/home/arabelo/.agents/skills/archify/bin/archify.mjs",
@@ -68,19 +68,19 @@
       ],
       "receipt": {
         "schemaVersion": 1,
-        "receiptId": "c02ffe56-fae8-4de6-a916-759ec9130a36",
+        "receiptId": "b54ada34-0503-4ce4-b1f5-adfff8bd1244",
         "ok": true,
         "command": "deliver",
         "type": "architecture",
         "input": "/home/arabelo/projetos/aiops-control-node/.archify/arquitetura-aiops-20261122-160000/candidate.json",
         "output": "/home/arabelo/projetos/aiops-control-node/docs/assets/arquitetura-aiops.html",
         "specification": {
-          "sha256": "f39779a080247b69d3aeaafe5e94723040d03360f82b16b524e68f64772566fa",
-          "bytes": 2778
+          "sha256": "6b318fb11d19a18f224711d82fb9471775a49c1ad1e1242424d01f591caf1f6c",
+          "bytes": 2810
         },
         "artifact": {
-          "sha256": "db23a0df93c5449495bed24398511c0dbba7c8f30dbde44d09712d7ea155df0b",
-          "bytes": 934340
+          "sha256": "3e697f5ac81cc33e188387e51d06e09600ed8f7a6bfb11dff50896fbfc8109a9",
+          "bytes": 934940
         },
         "validation": {
           "checksPassed": 9,
@@ -118,8 +118,8 @@
         "ok": true,
         "file": "/home/arabelo/projetos/aiops-control-node/docs/assets/arquitetura-aiops.html",
         "artifact": {
-          "sha256": "db23a0df93c5449495bed24398511c0dbba7c8f30dbde44d09712d7ea155df0b",
-          "bytes": 934340
+          "sha256": "3e697f5ac81cc33e188387e51d06e09600ed8f7a6bfb11dff50896fbfc8109a9",
+          "bytes": 934940
         },
         "checks": [
           {
@@ -180,22 +180,22 @@
           },
           "metrics": {
             "properCrossings": 0,
-            "resolvedCrossovers": 4,
+            "resolvedCrossovers": 6,
             "ambiguousCorridors": 0,
             "arrowheadCollisions": 0,
             "containerBorderRuns": 0,
             "labelRouteClearanceIssues": 0,
             "labelCanvasOverflowIssues": 0,
-            "minLabelRouteClearance": 26,
+            "minLabelRouteClearance": 17,
             "desktopReadabilityIssues": 0,
             "viewportHeightIssues": 0,
-            "minProjectedNodeTextPx": 7.948717948717949,
-            "maxBends": 2,
-            "routesOverSuggestedBends": 0,
-            "maxStretch": 1.055,
+            "minProjectedNodeTextPx": 7.5,
+            "maxBends": 4,
+            "routesOverSuggestedBends": 1,
+            "maxStretch": 1.233,
             "routesOverSuggestedStretch": 0,
             "minSegmentPx": 16,
-            "minInteriorSegmentPx": 224,
+            "minInteriorSegmentPx": 55,
             "shortSegmentCount": 0,
             "shortEndpointSegmentCount": 0,
             "shortInteriorSegmentCount": 0,
@@ -219,14 +219,14 @@
                 },
                 "right": {
                   "from": "ssh",
-                  "to": "centos10",
-                  "label": "2260",
-                  "collectionIndex": 10,
-                  "artifactIndex": 11
+                  "to": "ubuntu",
+                  "label": "2220",
+                  "collectionIndex": 7,
+                  "artifactIndex": 8
                 },
                 "point": [
-                  562.4,
-                  539
+                  771.2,
+                  226
                 ]
               },
               {
@@ -245,8 +245,28 @@
                   "artifactIndex": 8
                 },
                 "point": [
-                  562.4,
-                  227
+                  771.2,
+                  382
+                ]
+              },
+              {
+                "left": {
+                  "from": "control-node",
+                  "to": "rhel10",
+                  "label": "SSH + Ansible",
+                  "collectionIndex": 2,
+                  "artifactIndex": 3
+                },
+                "right": {
+                  "from": "ssh",
+                  "to": "agents-lab",
+                  "label": "2230",
+                  "collectionIndex": 8,
+                  "artifactIndex": 9
+                },
+                "point": [
+                  793.2,
+                  382
                 ]
               },
               {
@@ -265,8 +285,28 @@
                   "artifactIndex": 8
                 },
                 "point": [
-                  562.4,
-                  344
+                  771.2,
+                  484
+                ]
+              },
+              {
+                "left": {
+                  "from": "control-node",
+                  "to": "awslinux",
+                  "label": "SSH + Ansible",
+                  "collectionIndex": 4,
+                  "artifactIndex": 5
+                },
+                "right": {
+                  "from": "ssh",
+                  "to": "agents-lab",
+                  "label": "2230",
+                  "collectionIndex": 8,
+                  "artifactIndex": 9
+                },
+                "point": [
+                  793.2,
+                  484
                 ]
               },
               {
@@ -285,22 +325,56 @@
                   "artifactIndex": 10
                 },
                 "point": [
-                  584.4,
-                  344
+                  852.2,
+                  484
                 ]
               }
             ],
             "crowdedSides": [
               {
                 "node": "control-node",
-                "label": "Control Node",
+                "label": "Control Node\nagents-lab\nUbuntu 26.04",
                 "side": "right",
                 "relationships": 6,
                 "sidePx": 60,
                 "neededPx": 102
               }
             ],
-            "detours": []
+            "detours": [
+              {
+                "relationship": {
+                  "from": "control-node",
+                  "to": "awslinux",
+                  "label": "SSH + Ansible",
+                  "collectionIndex": 4,
+                  "artifactIndex": 5
+                },
+                "bends": 4,
+                "stretch": 1.166,
+                "directCorridorBlockers": [
+                  {
+                    "id": "hitl",
+                    "label": "HITL\nAprovação\nHumana",
+                    "box": [
+                      409.2,
+                      516,
+                      187,
+                      60
+                    ]
+                  },
+                  {
+                    "id": "ssh",
+                    "label": "SSH\nPortas 2220–2260",
+                    "box": [
+                      688.2,
+                      516,
+                      180,
+                      60
+                    ]
+                  }
+                ]
+              }
+            ]
           },
           "leadingSpace": {
             "measured": true,
@@ -313,11 +387,14 @@
             "reviewSuggested": false
           },
           "desktopReadability": {
-            "budgetBasis": "legacy-930",
+            "budgetBasis": "recognized-declared-wide",
             "readerContract": "declared-wide-v1",
-            "availableDiagramWidth": 930,
-            "actualBudgetPx": 930,
-            "limit": "legacy",
+            "availableDiagramWidth": 1178.4375,
+            "actualBudgetPx": 1178.4375,
+            "actualReaderWidth": 1208.4375,
+            "desiredReaderWidth": 1208.4375,
+            "viewportCap": 1376,
+            "limit": "source-size",
             "requestedTargetPx": 7.5,
             "requestedTargetMet": true,
             "hardFloorPx": 6,
@@ -329,19 +406,19 @@
               "to": "hitl"
             },
             "minimumSourceTextPx": 8,
-            "minimumProjectedTextPx": 7.948717948717949,
+            "minimumProjectedTextPx": 7.5,
             "semanticTextCount": 20
           },
           "issues": []
         },
         "provenance": "current",
-        "deliveryReceiptId": "c02ffe56-fae8-4de6-a916-759ec9130a36"
+        "deliveryReceiptId": "b54ada34-0503-4ce4-b1f5-adfff8bd1244"
       }
     },
     "browser-check": {
-      "status": "skipped",
-      "exitCode": 2,
-      "durationMs": 177,
+      "status": "fail",
+      "exitCode": 1,
+      "durationMs": 154,
       "command": [
         "/usr/bin/node",
         "/home/arabelo/.agents/skills/archify/bin/archify.mjs",
@@ -356,55 +433,58 @@
         "ok": false,
         "command": "browser-check",
         "evidenceKind": "automated-browser",
-        "status": "skipped",
+        "status": "fail",
         "visualReview": "not-requested",
         "provenance": "current",
-        "deliveryReceiptId": "c02ffe56-fae8-4de6-a916-759ec9130a36",
+        "deliveryReceiptId": "b54ada34-0503-4ce4-b1f5-adfff8bd1244",
         "artifact": {
           "path": "/home/arabelo/projetos/aiops-control-node/docs/assets/arquitetura-aiops.html",
-          "sha256": "db23a0df93c5449495bed24398511c0dbba7c8f30dbde44d09712d7ea155df0b",
-          "bytes": 934340
+          "sha256": "3e697f5ac81cc33e188387e51d06e09600ed8f7a6bfb11dff50896fbfc8109a9",
+          "bytes": 934940
         },
         "state": {
           "detail": "read",
           "motion": "still"
         },
         "chrome": {
-          "status": "unavailable",
+          "status": "not-checked",
           "executable": null
         },
         "diagnostics": [
           {
-            "code": "viewer/chrome-unavailable",
-            "severity": "warning",
-            "message": "No supported browser found. Install Chrome/Chromium (or Microsoft Edge), or set ARCHIFY_CHROME to its executable path.",
+            "code": "viewer/evidence-path-conflict",
+            "severity": "error",
+            "message": "browser-check will not replace the existing unowned evidence path \"/home/arabelo/projetos/aiops-control-node/docs/assets/arquitetura-aiops.browser-check.json\".",
             "subject": {
-              "artifact": "/home/arabelo/projetos/aiops-control-node/docs/assets/arquitetura-aiops.html"
+              "artifact": "/home/arabelo/projetos/aiops-control-node/docs/assets/arquitetura-aiops.html",
+              "evidencePath": "/home/arabelo/projetos/aiops-control-node/docs/assets/arquitetura-aiops.browser-check.json"
             },
             "evidence": {
-              "executable": null
+              "reason": {
+                "code": "ownership-artifact-mismatch"
+              }
             },
             "supportedFixes": [
-              "set ARCHIFY_CHROME to a Chrome/Chromium executable (or Microsoft Edge) and rerun browser-check"
+              "move the conflicting file aside, or choose a separate --out-dir, then rerun browser-check"
             ]
           }
         ],
         "containment": {
-          "status": "skipped",
+          "status": "fail",
           "policy": "fit-or-reader-declared-readable-vertical-scroll",
           "viewports": []
         },
         "themeStates": {
-          "status": "skipped",
+          "status": "fail",
           "viewports": []
         },
         "readability": {
-          "status": "skipped",
+          "status": "fail",
           "minimumProjectedNodeTextPx": 6,
           "viewports": []
         },
         "viewerChrome": {
-          "status": "skipped",
+          "status": "fail",
           "viewports": []
         },
         "captures": {
@@ -416,7 +496,7 @@
           "receipt": "arquitetura-aiops.browser-check.json",
           "files": []
         },
-        "error": "No supported browser found. Install Chrome/Chromium (or Microsoft Edge), or set ARCHIFY_CHROME to its executable path."
+        "error": "browser-check will not replace the existing unowned evidence path \"/home/arabelo/projetos/aiops-control-node/docs/assets/arquitetura-aiops.browser-check.json\"."
       }
     }
   },
@@ -426,17 +506,20 @@
   },
   "diagnostics": [
     {
-      "code": "viewer/chrome-unavailable",
-      "severity": "warning",
-      "message": "No supported browser found. Install Chrome/Chromium (or Microsoft Edge), or set ARCHIFY_CHROME to its executable path.",
+      "code": "viewer/evidence-path-conflict",
+      "severity": "error",
+      "message": "browser-check will not replace the existing unowned evidence path \"/home/arabelo/projetos/aiops-control-node/docs/assets/arquitetura-aiops.browser-check.json\".",
       "subject": {
-        "artifact": "/home/arabelo/projetos/aiops-control-node/docs/assets/arquitetura-aiops.html"
+        "artifact": "/home/arabelo/projetos/aiops-control-node/docs/assets/arquitetura-aiops.html",
+        "evidencePath": "/home/arabelo/projetos/aiops-control-node/docs/assets/arquitetura-aiops.browser-check.json"
       },
       "evidence": {
-        "executable": null
+        "reason": {
+          "code": "ownership-artifact-mismatch"
+        }
       },
       "supportedFixes": [
-        "set ARCHIFY_CHROME to a Chrome/Chromium executable (or Microsoft Edge) and rerun browser-check"
+        "move the conflicting file aside, or choose a separate --out-dir, then rerun browser-check"
       ]
     }
   ],
@@ -447,8 +530,8 @@
   },
   "visualReview": "not-requested",
   "failedStage": "browser-check",
-  "finishedAt": "2026-11-22T19:08:14.060Z",
-  "durationMs": 1992,
+  "finishedAt": "2026-11-22T19:13:00.711Z",
+  "durationMs": 1871,
   "update": {
     "status": "current",
     "installedVersion": "3.3.0",

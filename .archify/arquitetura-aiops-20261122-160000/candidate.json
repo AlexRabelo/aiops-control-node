@@ -2,8 +2,7 @@
   "schema_version": 1,
   "diagram_type": "architecture",
   "meta": {
-    "title": "Arquitetura AIOps Control Node",
-    "subtitle": "Control Node gerenciando 5 hosts via SSH + Ansible com HITL",
+    "title": "Arquitetura aiops-control-node",
     "output": "docs/assets/arquitetura-aiops.html",
     "quality_profile": "showcase"
   },
@@ -14,51 +13,50 @@
     {
       "id": "control-node",
       "type": "backend",
-      "label": "Control Node",
-      "icon": "backend",
-      "emphasis": true
+      "label": "Control Node\nagents-lab\nUbuntu 26.04",
+      "icon": "backend"
     },
     {
       "id": "ubuntu",
       "type": "backend",
-      "label": "ubuntu\nSSH:2220",
+      "label": "ubuntu\nSSH:2220\nUbuntu 26.04",
       "icon": "backend"
     },
     {
       "id": "agents-lab",
       "type": "backend",
-      "label": "agents-lab\nSSH:2230",
+      "label": "agents-lab\nSSH:2230\nUbuntu 26.04",
       "icon": "backend"
     },
     {
       "id": "rhel10",
       "type": "backend",
-      "label": "rhel10\nSSH:2240",
-      "icon": "backend"
-    },
-    {
-      "id": "centos10",
-      "type": "backend",
-      "label": "centos10\nSSH:2260",
+      "label": "rhel10\nSSH:2240\nRHEL 10.2",
       "icon": "backend"
     },
     {
       "id": "awslinux",
       "type": "backend",
-      "label": "awslinux\nSSH:2250",
+      "label": "awslinux\nSSH:2250\nAmazon Linux 2023",
+      "icon": "backend"
+    },
+    {
+      "id": "centos10",
+      "type": "backend",
+      "label": "centos10\nSSH:2260\nCentOS Stream 10",
       "icon": "backend"
     },
     {
       "id": "hitl",
       "type": "security",
-      "label": "HITL\nGate",
+      "label": "HITL\nAprovação\nHumana",
       "icon": "security",
       "emphasis": true
     },
     {
       "id": "ssh",
       "type": "messagebus",
-      "label": "SSH\n2220-2260",
+      "label": "SSH\nPortas 2220–2260",
       "icon": "messagebus"
     }
   ],
@@ -96,13 +94,13 @@
     {
       "from": "control-node",
       "to": "hitl",
-      "label": "Validação",
+      "label": "Validação HITL",
       "variant": "emphasis"
     },
     {
       "from": "hitl",
       "to": "ssh",
-      "label": "Portas",
+      "label": "Portas SSH",
       "variant": "default"
     },
     {
