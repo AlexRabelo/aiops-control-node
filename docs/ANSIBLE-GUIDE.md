@@ -49,35 +49,30 @@ O `aiops-control-node` gerencia servidores Enterprise Linux distribuídos. Sem a
 
 ## 3. Arquitetura e componentes
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    CONTROL NODE (Ubuntu 26.04)                  │
-│                                                                 │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐   │
-│  │  Inventário │  │  Playbooks  │  │  Ansible Vault       │   │
-│  │  inventory.ini│ │  .yml       │  │  (segredos cript.)  │   │
-│  └──────┬──────┘  └──────┬──────┘  └───────────┬─────────┘   │
-│         │                │                     │               │
-│         └────────────────┴─────────────────────┘               │
-│                       SSH (porta 2220-2260)                     │
-│                              │                                  │
-└──────────────────────────────┼──────────────────────────────────┘
-                               │
-        ┌──────────────────────┼──────────────────────┐
-        │                      │                      │
-   ┌────▼────┐            ┌────▼────┐           ┌────▼────┐
-   │centos10 │            │rhel10   │           │awslinux │
-   │CentOS   │            │RHEL 10  │           │Linux 2023│
-   │Stream 10│            │         │           │SSH:2250 │
-   │SSH:2260 │            │SSH:2240 │           └────┬────┘
-   └────┬────┘            └────┬────┘                │
-        │                      │                      │
-   ┌────▼────┐            ┌────▼────┐           ┌────▼────┐
-   │ubuntu   │            │agents-lab│           │         │
-   │Ubuntu   │            │Ubuntu   │           │         │
-   │26.04    │            │26.04    │           │         │
-   │SSH:2220 │            │SSH:2230 │           │         │
-   └─────────┘            └─────────┘           └─────────┘
+### Diagrama de arquitetura (Mermaid)
+
+```mermaid
+graph TD
+    subgraph ControlNode["Control Node (Ubuntu 26.04)"]
+        Inventory["inventory.ini<br/>Inventário de hosts"]
+        Playbooks["ansible/playbooks/<br/>Playbooks YAML"]
+        Vault["Ansible Vault<br/>Segredos criptografados"]
+    end
+
+    subgraph ManagedNodes["Managed Nodes (via SSH 2220-2260)"]
+        direction TB
+        subgroup UbuntuNodes["ubuntu_nodes"]
+            Ubuntu["ubuntu<br/>SSH:2220<br/>Ubuntu 26.04"]
+            AgentsLab["agents-lab<br/>SSH:2230<br/>Ubuntu 26.04"]
+        end
+        CentOS["centos10<br/>SSH:2260<br/>CentOS Stream 10"]
+        RHEL["rhel10<br/>SSH:2240<br/>RHEL 10.2"]
+        AmazonLinux["awslinux<br/>SSH:2250<br/>Amazon Linux 2023"]
+    end
+
+    ControlNode -->|SSH + Ansible| ManagedNodes
+    Inventory --> Playbooks
+    Playbooks --> Vault
 ```
 
 ### Componentes principais
@@ -100,52 +95,24 @@ O `aiops-control-node` gerencia servidores Enterprise Linux distribuídos. Sem a
 
 Toda alteração persistente na infraestrutura segue este fluxo, conforme definido no `AGENTS.md`:
 
+### Fluxo de trabalho obrigatório (Mermaid)
+
+```mermaid
+flowchart TD
+    A[Início: Diagnóstico via SSH] --> B[Auditoria LPIC-1]
+    B --> C[Gerar playbook idempotente]
+    C --> D[ansible-lint + policy-validator]
+    D -->|Reprovado| C
+    D -->|Aprovado| E[--check --diff simulação]
+    E -->|Erro| C
+    E -->|OK| F[HITL: aprovação humana]
+    F -->|Rejeitado| G[Fim: ação não executada]
+    F -->|Aprovado| H[ansible-playbook aplicação real]
+    H --> I[Validação pós-aplicação]
+    I --> Fim[Fim: relatório técnico]
 ```
-┌─────────────┐
-│  1. Diagnóstico  │  ← linux-triage: coleta somente-leitura via SSH
-└──────┬──────────┘
-       │
-       ▼
-┌─────────────┐
-│  2. Auditoria  │  ← lpic1-audit: verifica hardening e conformidade
-└──────┬──────────┘
-       │
-       ▼
-┌─────────────┐
-│  3. Playbook  │  ← ansible-remediation: gera playbook idempotente
-│    YAML       │     em ansible/playbooks/
-└──────┬──────────┘
-       │
-       ▼
-┌─────────────┐
-│  4. Validação │  ← policy-validator: regras de segurança
-│  (estática)   │     + ansible-lint
-└──────┬──────────┘
-       │
-       ▼
-┌─────────────┐
-│  5. Simulação │  ← ansible-playbook --check --diff
-│   (dry-run)   │     → mostra o que mudaria sem aplicar
-└──────┬──────────┘
-       │
-       ▼
-┌─────────────┐
-│  6. HITL      │  ← human-in-the-loop: operador aprova/rejeita
-│  (aprovação)  │     com base no impacto e reversão
-└──────┬──────────┘
-       │
-       ▼
-┌─────────────┐
-│  7. Aplicação │  ← ansible-playbook (sem --check)
-│   real        │
-└──────┬──────────┘
-       │
-       ▼
-┌─────────────┐
-│  8. Validação │  ← Critério de validação do relatório técnico
-│   pós-aplica  │
-└─────────────┘
-```
+
+**Regra de ouro:** Nunca pule a etapa de simulação (`--check --diff`) nem a aprovação humana (HITL).
 
 **Regra de ouro:** Nunca pule a etapa 5 (simulação) ou a etapa 6 (aprovação humana).
 
@@ -500,7 +467,7 @@ graph TD
         D[human-in-the-loop: aprovação explícita do operador]
     end
     subgraph "Camada 4: Auditoria"
-        E[logs/approvals: registro de decisões]
+        E[Registro de decisões: HITL e relatórios]
         F[MEMORY.md: histórico do projeto]
     end
 
@@ -533,7 +500,6 @@ aiops-control-node/
 ├── scripts/
 │   └── set-hostname-ubuntu.sh
 └── logs/
-    ├── approvals/               # Log de decisões HITL
     └── incidents/               # Log de incidentes
 ```
 
@@ -555,24 +521,15 @@ No contexto de **AIOps (Artificial Intelligence for Operations)** e **SRE (Site 
 ### O loop AIOps com Ansible
 
 ```
-Observação (linux-triage + observability-collect)
-        │
-        ▼
-Detecção de anomalia (lpic1-audit + métricas)
-        │
-        ▼
-Decisão (gerar playbook via ansible-remediation)
-        │
-        ▼
-Validação (policy-validator + --check --diff + HITL)
-        │
-        ▼
-Execução (ansible-playbook aplicação)
-        │
-        ▼
-Verificação (pós-aplicação + critério de validação)
-        │
-        └──────────────────────► volta à Observação
+```mermaid
+flowchart TD
+    A[Observação: linux-triage + observability-collect] --> B
+    B[Detecção: lpic1-audit + métricas] --> C
+    C[Decisão: gerar playbook] --> D
+    D[Validação: policy-validator + --check --diff + HITL] --> E
+    E[Execução: ansible-playbook] --> F
+    F[Verificação: critério de validação] --> A
+```
 ```
 
 ---
@@ -587,10 +544,9 @@ Antes de considerar um playbook pronto para produção:
 - [ ] Não há credenciais em texto claro (use Ansible Vault)
 - [ ] `ansible-lint` passou sem erros
 - [ ] `ansible-playbook --check --diff` executado com sucesso
-- [ ] Aprovação via `human-in-the-loop` registrada em `logs/approvals/`
+- [ ] Aprovação via human-in-the-loop (HITL) confirmada pelo operador
 - [ ] Plano de reversão documentado
 - [ ] Critério de validação definido no relatório técnico
-
 ---
 
 ## Referências
