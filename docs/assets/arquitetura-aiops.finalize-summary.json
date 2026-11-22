@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "ok": false,
+  "command": "finalize",
+  "status": "skipped",
+  "type": "architecture",
+  "quality": "showcase",
+  "specification": {
+    "path": "/home/arabelo/projetos/aiops-control-node/.archify/arquitetura-aiops-20261122-160000/candidate.json",
+    "sha256": "f39779a080247b69d3aeaafe5e94723040d03360f82b16b524e68f64772566fa",
+    "bytes": 2778
+  },
+  "artifact": {
+    "path": "/home/arabelo/projetos/aiops-control-node/docs/assets/arquitetura-aiops.html",
+    "sha256": "db23a0df93c5449495bed24398511c0dbba7c8f30dbde44d09712d7ea155df0b",
+    "bytes": 934340
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "skipped"
+  },
+  "failedStage": "browser-check",
+  "diagnostics": [
+    {
+      "code": "viewer/chrome-unavailable",
+      "severity": "warning",
+      "message": "No supported browser found. Install Chrome/Chromium (or Microsoft Edge), or set ARCHIFY_CHROME to its executable path.",
+      "subject": {
+        "artifact": "/home/arabelo/projetos/aiops-control-node/docs/assets/arquitetura-aiops.html"
+      },
+      "evidence": {
+        "executable": null
+      },
+      "supportedFixes": [
+        "set ARCHIFY_CHROME to a Chrome/Chromium executable (or Microsoft Edge) and rerun browser-check"
+      ]
+    }
+  ],
+  "diagnosticSummary": {
+    "total": 1,
+    "shown": 1,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "/home/arabelo/projetos/aiops-control-node/docs/assets/arquitetura-aiops.finalize.json",
+    "summaryReceipt": "/home/arabelo/projetos/aiops-control-node/docs/assets/arquitetura-aiops.finalize-summary.json",
+    "browserCheckReceipt": "/home/arabelo/projetos/aiops-control-node/docs/assets/arquitetura-aiops.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.3.0",
+    "availableVersion": "3.3.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-22T19:07:23.376Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 1992,
+  "browserCheck": {
+    "requested": true,
+    "ran": false
+  }
+}

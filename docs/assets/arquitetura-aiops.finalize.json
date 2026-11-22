@@ -1,0 +1,462 @@
+{
+  "schemaVersion": 1,
+  "ok": false,
+  "command": "finalize",
+  "status": "skipped",
+  "type": "architecture",
+  "quality": "showcase",
+  "startedAt": "2026-11-22T19:08:12.067Z",
+  "specification": {
+    "path": "/home/arabelo/projetos/aiops-control-node/.archify/arquitetura-aiops-20261122-160000/candidate.json",
+    "sha256": "f39779a080247b69d3aeaafe5e94723040d03360f82b16b524e68f64772566fa",
+    "bytes": 2778
+  },
+  "artifact": {
+    "path": "/home/arabelo/projetos/aiops-control-node/docs/assets/arquitetura-aiops.html",
+    "sha256": "db23a0df93c5449495bed24398511c0dbba7c8f30dbde44d09712d7ea155df0b",
+    "bytes": 934340
+  },
+  "stages": {
+    "validate": {
+      "status": "pass",
+      "exitCode": 0,
+      "durationMs": null,
+      "execution": "embedded-in-deliver",
+      "command": [
+        "/usr/bin/node",
+        "/home/arabelo/.agents/skills/archify/bin/archify.mjs",
+        "deliver",
+        "architecture",
+        "/home/arabelo/projetos/aiops-control-node/.archify/arquitetura-aiops-20261122-160000/candidate.json",
+        "/home/arabelo/projetos/aiops-control-node/docs/assets/arquitetura-aiops.html",
+        "--quality",
+        "showcase",
+        "--json"
+      ],
+      "receipt": {
+        "schemaVersion": 1,
+        "ok": true,
+        "command": "validate",
+        "specification": {
+          "sha256": "f39779a080247b69d3aeaafe5e94723040d03360f82b16b524e68f64772566fa",
+          "bytes": 2778
+        },
+        "validation": {
+          "checksPassed": 9,
+          "checkCount": 9,
+          "compositionProfile": "showcase",
+          "compositionStatus": "pass",
+          "errors": 0,
+          "warnings": 0
+        }
+      }
+    },
+    "deliver": {
+      "status": "pass",
+      "exitCode": 0,
+      "durationMs": 1565,
+      "command": [
+        "/usr/bin/node",
+        "/home/arabelo/.agents/skills/archify/bin/archify.mjs",
+        "deliver",
+        "architecture",
+        "/home/arabelo/projetos/aiops-control-node/.archify/arquitetura-aiops-20261122-160000/candidate.json",
+        "/home/arabelo/projetos/aiops-control-node/docs/assets/arquitetura-aiops.html",
+        "--quality",
+        "showcase",
+        "--json"
+      ],
+      "receipt": {
+        "schemaVersion": 1,
+        "receiptId": "c02ffe56-fae8-4de6-a916-759ec9130a36",
+        "ok": true,
+        "command": "deliver",
+        "type": "architecture",
+        "input": "/home/arabelo/projetos/aiops-control-node/.archify/arquitetura-aiops-20261122-160000/candidate.json",
+        "output": "/home/arabelo/projetos/aiops-control-node/docs/assets/arquitetura-aiops.html",
+        "specification": {
+          "sha256": "f39779a080247b69d3aeaafe5e94723040d03360f82b16b524e68f64772566fa",
+          "bytes": 2778
+        },
+        "artifact": {
+          "sha256": "db23a0df93c5449495bed24398511c0dbba7c8f30dbde44d09712d7ea155df0b",
+          "bytes": 934340
+        },
+        "validation": {
+          "checksPassed": 9,
+          "checkCount": 9,
+          "compositionProfile": "showcase",
+          "compositionStatus": "pass",
+          "errors": 0,
+          "warnings": 0
+        },
+        "update": {
+          "status": "unavailable",
+          "installedVersion": null,
+          "availableVersion": null,
+          "releaseNotes": null,
+          "checkedAt": null,
+          "source": null,
+          "noticeRequired": false,
+          "noticeText": null,
+          "reason": "disabled"
+        }
+      }
+    },
+    "check": {
+      "status": "pass",
+      "exitCode": 0,
+      "durationMs": 142,
+      "command": [
+        "/usr/bin/node",
+        "/home/arabelo/.agents/skills/archify/bin/archify.mjs",
+        "check",
+        "/home/arabelo/projetos/aiops-control-node/docs/assets/arquitetura-aiops.html",
+        "--require-provenance"
+      ],
+      "receipt": {
+        "ok": true,
+        "file": "/home/arabelo/projetos/aiops-control-node/docs/assets/arquitetura-aiops.html",
+        "artifact": {
+          "sha256": "db23a0df93c5449495bed24398511c0dbba7c8f30dbde44d09712d7ea155df0b",
+          "bytes": 934340
+        },
+        "checks": [
+          {
+            "name": "single_svg",
+            "ok": true,
+            "details": [
+              "found 1 <svg> block(s)"
+            ]
+          },
+          {
+            "name": "finite_svg",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "orthogonal_arrows",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "label_route_clearance",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "relationship_crossings",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "relationship_corridors",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "container_border_runs",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "route_rhythm",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "legend_clearance",
+            "ok": true,
+            "details": []
+          }
+        ],
+        "composition": {
+          "schemaVersion": 1,
+          "profile": "showcase",
+          "status": "pass",
+          "summary": {
+            "errors": 0,
+            "warnings": 0
+          },
+          "metrics": {
+            "properCrossings": 0,
+            "resolvedCrossovers": 4,
+            "ambiguousCorridors": 0,
+            "arrowheadCollisions": 0,
+            "containerBorderRuns": 0,
+            "labelRouteClearanceIssues": 0,
+            "labelCanvasOverflowIssues": 0,
+            "minLabelRouteClearance": 26,
+            "desktopReadabilityIssues": 0,
+            "viewportHeightIssues": 0,
+            "minProjectedNodeTextPx": 7.948717948717949,
+            "maxBends": 2,
+            "routesOverSuggestedBends": 0,
+            "maxStretch": 1.055,
+            "routesOverSuggestedStretch": 0,
+            "minSegmentPx": 16,
+            "minInteriorSegmentPx": 224,
+            "shortSegmentCount": 0,
+            "shortEndpointSegmentCount": 0,
+            "shortInteriorSegmentCount": 0,
+            "microSegmentCount": 0
+          },
+          "suggestedLimits": {
+            "bendsPerRelationship": 2,
+            "stretch": 1.35,
+            "segmentPx": 16,
+            "microSegmentPx": 8
+          },
+          "routeReview": {
+            "crossings": [
+              {
+                "left": {
+                  "from": "control-node",
+                  "to": "agents-lab",
+                  "label": "SSH + Ansible",
+                  "collectionIndex": 1,
+                  "artifactIndex": 2
+                },
+                "right": {
+                  "from": "ssh",
+                  "to": "centos10",
+                  "label": "2260",
+                  "collectionIndex": 10,
+                  "artifactIndex": 11
+                },
+                "point": [
+                  562.4,
+                  539
+                ]
+              },
+              {
+                "left": {
+                  "from": "control-node",
+                  "to": "rhel10",
+                  "label": "SSH + Ansible",
+                  "collectionIndex": 2,
+                  "artifactIndex": 3
+                },
+                "right": {
+                  "from": "ssh",
+                  "to": "ubuntu",
+                  "label": "2220",
+                  "collectionIndex": 7,
+                  "artifactIndex": 8
+                },
+                "point": [
+                  562.4,
+                  227
+                ]
+              },
+              {
+                "left": {
+                  "from": "control-node",
+                  "to": "awslinux",
+                  "label": "SSH + Ansible",
+                  "collectionIndex": 4,
+                  "artifactIndex": 5
+                },
+                "right": {
+                  "from": "ssh",
+                  "to": "ubuntu",
+                  "label": "2220",
+                  "collectionIndex": 7,
+                  "artifactIndex": 8
+                },
+                "point": [
+                  562.4,
+                  344
+                ]
+              },
+              {
+                "left": {
+                  "from": "control-node",
+                  "to": "awslinux",
+                  "label": "SSH + Ansible",
+                  "collectionIndex": 4,
+                  "artifactIndex": 5
+                },
+                "right": {
+                  "from": "ssh",
+                  "to": "rhel10",
+                  "label": "2240",
+                  "collectionIndex": 9,
+                  "artifactIndex": 10
+                },
+                "point": [
+                  584.4,
+                  344
+                ]
+              }
+            ],
+            "crowdedSides": [
+              {
+                "node": "control-node",
+                "label": "Control Node",
+                "side": "right",
+                "relationships": 6,
+                "sidePx": 60,
+                "neededPx": 102
+              }
+            ],
+            "detours": []
+          },
+          "leadingSpace": {
+            "measured": true,
+            "emptyTopPx": 48,
+            "emptyTopRatio": 0.06,
+            "occupiedTop": 48,
+            "viewBoxTop": 0,
+            "canvasHeight": 800,
+            "typicalNodeHeight": 60,
+            "reviewSuggested": false
+          },
+          "desktopReadability": {
+            "budgetBasis": "legacy-930",
+            "readerContract": "declared-wide-v1",
+            "availableDiagramWidth": 930,
+            "actualBudgetPx": 930,
+            "limit": "legacy",
+            "requestedTargetPx": 7.5,
+            "requestedTargetMet": true,
+            "hardFloorPx": 6,
+            "hardFloorMet": true,
+            "minimumOwner": {
+              "kind": "edge",
+              "id": null,
+              "from": "control-node",
+              "to": "hitl"
+            },
+            "minimumSourceTextPx": 8,
+            "minimumProjectedTextPx": 7.948717948717949,
+            "semanticTextCount": 20
+          },
+          "issues": []
+        },
+        "provenance": "current",
+        "deliveryReceiptId": "c02ffe56-fae8-4de6-a916-759ec9130a36"
+      }
+    },
+    "browser-check": {
+      "status": "skipped",
+      "exitCode": 2,
+      "durationMs": 177,
+      "command": [
+        "/usr/bin/node",
+        "/home/arabelo/.agents/skills/archify/bin/archify.mjs",
+        "browser-check",
+        "/home/arabelo/projetos/aiops-control-node/docs/assets/arquitetura-aiops.html",
+        "--json",
+        "--require-provenance"
+      ],
+      "execution": "in-process",
+      "receipt": {
+        "schemaVersion": 1,
+        "ok": false,
+        "command": "browser-check",
+        "evidenceKind": "automated-browser",
+        "status": "skipped",
+        "visualReview": "not-requested",
+        "provenance": "current",
+        "deliveryReceiptId": "c02ffe56-fae8-4de6-a916-759ec9130a36",
+        "artifact": {
+          "path": "/home/arabelo/projetos/aiops-control-node/docs/assets/arquitetura-aiops.html",
+          "sha256": "db23a0df93c5449495bed24398511c0dbba7c8f30dbde44d09712d7ea155df0b",
+          "bytes": 934340
+        },
+        "state": {
+          "detail": "read",
+          "motion": "still"
+        },
+        "chrome": {
+          "status": "unavailable",
+          "executable": null
+        },
+        "diagnostics": [
+          {
+            "code": "viewer/chrome-unavailable",
+            "severity": "warning",
+            "message": "No supported browser found. Install Chrome/Chromium (or Microsoft Edge), or set ARCHIFY_CHROME to its executable path.",
+            "subject": {
+              "artifact": "/home/arabelo/projetos/aiops-control-node/docs/assets/arquitetura-aiops.html"
+            },
+            "evidence": {
+              "executable": null
+            },
+            "supportedFixes": [
+              "set ARCHIFY_CHROME to a Chrome/Chromium executable (or Microsoft Edge) and rerun browser-check"
+            ]
+          }
+        ],
+        "containment": {
+          "status": "skipped",
+          "policy": "fit-or-reader-declared-readable-vertical-scroll",
+          "viewports": []
+        },
+        "themeStates": {
+          "status": "skipped",
+          "viewports": []
+        },
+        "readability": {
+          "status": "skipped",
+          "minimumProjectedNodeTextPx": 6,
+          "viewports": []
+        },
+        "viewerChrome": {
+          "status": "skipped",
+          "viewports": []
+        },
+        "captures": {
+          "status": "not-requested",
+          "screenshots": [],
+          "contactSheet": null
+        },
+        "sidecars": {
+          "receipt": "arquitetura-aiops.browser-check.json",
+          "files": []
+        },
+        "error": "No supported browser found. Install Chrome/Chromium (or Microsoft Edge), or set ARCHIFY_CHROME to its executable path."
+      }
+    }
+  },
+  "browserCheck": {
+    "requested": true,
+    "ran": false
+  },
+  "diagnostics": [
+    {
+      "code": "viewer/chrome-unavailable",
+      "severity": "warning",
+      "message": "No supported browser found. Install Chrome/Chromium (or Microsoft Edge), or set ARCHIFY_CHROME to its executable path.",
+      "subject": {
+        "artifact": "/home/arabelo/projetos/aiops-control-node/docs/assets/arquitetura-aiops.html"
+      },
+      "evidence": {
+        "executable": null
+      },
+      "supportedFixes": [
+        "set ARCHIFY_CHROME to a Chrome/Chromium executable (or Microsoft Edge) and rerun browser-check"
+      ]
+    }
+  ],
+  "evidence": {
+    "receipt": "/home/arabelo/projetos/aiops-control-node/docs/assets/arquitetura-aiops.finalize.json",
+    "summaryReceipt": "/home/arabelo/projetos/aiops-control-node/docs/assets/arquitetura-aiops.finalize-summary.json",
+    "browserCheckReceipt": "/home/arabelo/projetos/aiops-control-node/docs/assets/arquitetura-aiops.browser-check.json"
+  },
+  "visualReview": "not-requested",
+  "failedStage": "browser-check",
+  "finishedAt": "2026-11-22T19:08:14.060Z",
+  "durationMs": 1992,
+  "update": {
+    "status": "current",
+    "installedVersion": "3.3.0",
+    "availableVersion": "3.3.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-22T19:07:23.376Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  }
+}
