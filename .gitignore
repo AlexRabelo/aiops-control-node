@@ -1,6 +1,7 @@
 # Chaves privadas, credenciais e segredos (NUNCA versionar)
 .env
 .env.*
+.envrc
 *.pem
 *.key
 id_*

@@ -1,0 +1,80 @@
+---
+# Playbook: ssh-hardening.yml
+# Objetivo: hardening SSH (LPIC-1 tópico 110) e máscara de getty@tty1 (falso positivo WSL2).
+#
+# Guardrails AGENTS.md:
+#   - Alterações persistentes somente via playbook idempotente em ansible/playbooks/.
+#   - Passar por ansible-lint e ansible-playbook --check --diff antes da aplicação real.
+#   - Aplicação REAL (sem --check) somente após aprovação explícita (HITL).
+#
+# Escopo:
+#   - ubuntu_nodes (ubuntu, agents-lab): PasswordAuthentication no em
+#     /etc/ssh/sshd_config.d/99-wsl-remote.conf, mantendo
+#     PubkeyAuthentication yes e PermitRootLogin no. Valida sshd -t e recarrega
+#     o serviço ssh somente se houver alteração (changed).
+#   - ubuntu, agents-lab, rhel10, centos10: mascara getty@tty1.service sem reboot.
+
+- name: LPIC-1 SSH hardening e máscara de getty@tty1 (WSL2)
+  hosts: all
+  become: true
+  become_method: ansible.builtin.sudo
+  gather_facts: false
+
+
+  vars:
+    sshd_config_dir: /etc/ssh/sshd_config.d
+    sshd_wsl_conf: "{{ sshd_config_dir }}/99-wsl-remote.conf"
+    getty_mask_hosts:
+      - ubuntu
+      - agents-lab
+      - rhel10
+      - centos10
+
+  tasks:
+    - name: Garantir diretório de snippets do sshd
+      ansible.builtin.file:
+        path: "{{ sshd_config_dir }}"
+        state: directory
+        mode: '0755'
+        owner: root
+        group: root
+
+    - name: Aplicar hardening de sshd (somente ubuntu_nodes)
+      ansible.builtin.lineinfile:
+        path: "{{ sshd_wsl_conf }}"
+        create: true
+        mode: '0644'
+        owner: root
+        group: root
+        regexp: '^{{ item.directive }}\s+'
+        line: "{{ item.directive }} {{ item.value }}"
+        state: present
+      loop:
+        - directive: PubkeyAuthentication
+          value: "yes"
+        - directive: PasswordAuthentication
+          value: "no"
+        - directive: PermitRootLogin
+          value: "no"
+      when: inventory_hostname in groups['ubuntu_nodes']
+      notify:
+        - Validar sintaxe do sshd
+        - Recarregar serviço ssh
+
+    - name: Mascarar getty@tty1.service (falso positivo WSL2)
+      ansible.builtin.systemd:
+        name: getty@tty1.service
+        masked: true
+      when: inventory_hostname in getty_mask_hosts
+
+  handlers:
+    - name: Validar sintaxe do sshd
+      ansible.builtin.command: sshd -t
+      changed_when: false
+      listen: Validar sintaxe do sshd
+
+    - name: Recarregar serviço ssh
+      ansible.builtin.systemd:
+        name: ssh
+        state: reloaded
+      listen: Recarregar serviço ssh
