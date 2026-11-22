@@ -1,0 +1,41 @@
+direction = right
+
+camada1: Camada 1: Prevenção {
+  label: "Camada 1:\nPrevenção\nansible-lint"
+  style: {
+    fill: "#e3f2fd"
+    stroke: "#1565c0"
+    stroke-width: 2
+  }
+}
+
+camada2: Camada 2: Detecção {
+  label: "Camada 2:\nDetecção\n--check --diff"
+  style: {
+    fill: "#fff3e0"
+    stroke: "#e65100"
+    stroke-width: 2
+  }
+}
+
+camada3: Camada 3: Autorização {
+  label: "Camada 3:\nAutorização\nHuman-in-the-Loop"
+  style: {
+    fill: "#ffecb3"
+    stroke: "#f9a825"
+    stroke-width: 3
+  }
+}
+
+camada4: Camada 4: Auditoria {
+  label: "Camada 4:\nAuditoria\nMEMORY.md"
+  style: {
+    fill: "#e8f5e9"
+    stroke: "#2e7d32"
+    stroke-width: 2
+  }
+}
+
+camada1 -> camada2
+camada2 -> camada3
+camada3 -> camada4

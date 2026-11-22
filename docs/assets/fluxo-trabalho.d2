@@ -1,0 +1,92 @@
+direction = right
+
+diagnostico: Diagnóstico {
+  label: "1. Diagnóstico\nvia SSH"
+  style: {
+    fill: "#e3f2fd"
+    stroke: "#1565c0"
+    stroke-width: 2
+  }
+}
+
+auditoria: Auditoria LPIC-1 {
+  label: "2. Auditoria\nLPIC-1"
+  style: {
+    fill: "#e3f2fd"
+    stroke: "#1565c0"
+    stroke-width: 2
+  }
+}
+
+playbook: Playbook Idempotente {
+  label: "3. Playbook\nIdempotente"
+  style: {
+    fill: "#fff3e0"
+    stroke: "#e65100"
+    stroke-width: 2
+  }
+}
+
+lint: ansible-lint {
+  label: "4. ansible-lint"
+  style: {
+    fill: "#fff3e0"
+    stroke: "#e65100"
+    stroke-width: 2
+  }
+}
+
+check: Simulação {
+  label: "5. Simulação\n--check --diff"
+  style: {
+    fill: "#fff3e0"
+    stroke: "#e65100"
+    stroke-width: 2
+  }
+}
+
+hitl: HITL Gate {
+  shape: diamond
+  label: "6. HITL\nAprovação\nHumana"
+  style: {
+    fill: "#ffecb3"
+    stroke: "#f9a825"
+    stroke-width: 3
+  }
+}
+
+aplicacao: Aplicação Real {
+  label: "7. Aplicação\nansible-playbook"
+  style: {
+    fill: "#e8f5e9"
+    stroke: "#2e7d32"
+    stroke-width: 2
+  }
+}
+
+validacao: Validação Pós-Aplicação {
+  label: "8. Validação\nPós-Aplicação"
+  style: {
+    fill: "#e8f5e9"
+    stroke: "#2e7d32"
+    stroke-width: 2
+  }
+}
+
+fim: Fim {
+  label: "Fim:\nRelatório Técnico"
+  style: {
+    fill: "#334155"
+    stroke: "#1e293b"
+    stroke-width: 2
+  }
+}
+
+diagnostico -> auditoria
+auditoria -> playbook
+playbook -> lint
+lint -> check
+check -> hitl
+hitl -> aplicacao
+aplicacao -> validacao
+validacao -> fim

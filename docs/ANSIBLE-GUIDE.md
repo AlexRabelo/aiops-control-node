@@ -49,31 +49,9 @@ O `aiops-control-node` gerencia servidores Enterprise Linux distribuídos. Sem a
 
 ## 3. Arquitetura e componentes
 
-### Diagrama de arquitetura (Mermaid)
+### Diagrama de arquitetura (D2 / SVG)
 
-```mermaid
-graph TD
-    subgraph ControlNode["Control Node (Ubuntu 26.04)"]
-        Inventory["inventory.ini<br/>Inventário de hosts"]
-        Playbooks["ansible/playbooks/<br/>Playbooks YAML"]
-        Vault["Ansible Vault<br/>Segredos criptografados"]
-    end
-
-    subgraph ManagedNodes["Managed Nodes (via SSH 2220-2260)"]
-        direction TB
-        subgraph UbuntuNodes["ubuntu_nodes"]
-            Ubuntu["ubuntu<br/>SSH:2220<br/>Ubuntu 26.04"]
-            AgentsLab["agents-lab<br/>SSH:2230<br/>Ubuntu 26.04"]
-        end
-        CentOS["centos10<br/>SSH:2260<br/>CentOS Stream 10"]
-        RHEL["rhel10<br/>SSH:2240<br/>RHEL 10.2"]
-        AmazonLinux["awslinux<br/>SSH:2250<br/>Amazon Linux 2023"]
-    end
-
-    ControlNode -->|SSH + Ansible| ManagedNodes
-    Inventory --> Playbooks
-    Playbooks --> Vault
-```
+![Arquitetura aiops-control-node — D2 SVG](assets/arquitetura-aiops-v2.svg)
 
 ### Componentes principais
 
@@ -95,22 +73,9 @@ graph TD
 
 Toda alteração persistente na infraestrutura segue este fluxo, conforme definido no `AGENTS.md`:
 
-### Fluxo de trabalho obrigatório (Mermaid)
+### Fluxo de trabalho obrigatório (D2 / SVG)
 
-```mermaid
-flowchart TD
-    A[Início: Diagnóstico via SSH] --> B[Auditoria LPIC-1]
-    B --> C[Gerar playbook idempotente]
-    C --> D[ansible-lint]
-    D -->|Reprovado| C
-    D -->|Aprovado| E[--check --diff simulação]
-    E -->|Erro| C
-    E -->|OK| F[HITL: aprovação humana]
-    F -->|Rejeitado| G[Fim: ação não executada]
-    F -->|Aprovado| H[ansible-playbook aplicação real]
-    H --> I[Validação pós-aplicação]
-    I --> Fim[Fim: relatório técnico]
-```
+![Fluxo de Trabalho Obrigatório — D2 SVG](assets/fluxo-trabalho.svg)
 
 **Regra de ouro:** Nunca pule a etapa de simulação (`--check --diff`) nem a aprovação humana (HITL).
 
@@ -575,46 +540,13 @@ ansible-playbook -i ansible/inventory.ini \
 
 ## 9. Diagramas e esquemas
 
-### Fluxo de decisão (mermaid)
+### Fluxo de decisão (D2 / SVG)
 
-```mermaid
-flowchart TD
-    A[Início: Diagnóstico via SSH] --> B[Auditoria LPIC-1]
-    B --> C[Gerar playbook idempotente]
-    C --> D[ansible-lint]
-    D -->|Reprovado| C
-    D -->|Aprovado| E[--check --diff simulação]
-    E -->|Erro| C
-    E -->|OK| F[HITL: aprovação humana]
-    F -->|Rejeitado| G[Fim: ação não executada]
-    F -->|Aprovado| H[ansible-playbook aplicação real]
-    H --> I[Validação pós-aplicação]
-    I --> Fim[Fim: relatório técnico]
-```
+![Fluxo de Decisão — D2 SVG](assets/fluxo-decisao.svg)
 
-### Camadas de segurança
+### Camadas de segurança (D2 / SVG)
 
-```mermaid
-graph TD
-    subgraph "Camada 1: Prevenção"
-        A[ansible-lint: erros de YAML e boas práticas]
-    end
-    subgraph "Camada 2: Detecção"
-        B[--check --diff: simulação de impacto]
-    end
-    subgraph "Camada 3: Autorização"
-        C[human-in-the-loop: aprovação explícita do operador]
-    end
-    subgraph "Camada 4: Auditoria"
-        D[Registro de decisões: HITL e relatórios]
-        E[MEMORY.md: histórico do projeto]
-    end
-
-    A --> B
-    B --> C
-    C --> D
-    D --> E
-```
+![Camadas de Segurança — D2 SVG](assets/camadas-seguranca.svg)
 
 ### Hierarquia de arquivos do projeto
 
