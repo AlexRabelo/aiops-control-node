@@ -1,0 +1,89 @@
+direction = right
+
+services: Ansible {
+  shape: cylinder
+  label: "Control Node\nagents-lab\nUbuntu 26.04"
+  style: {
+    fill: "#eef2f7"
+    stroke: "#2c3e50"
+    stroke-width: 2
+  }
+}
+
+managed: Managed Nodes {
+  label: ""
+  style: {
+    fill: "#ffffff"
+    stroke: "#2c3e50"
+    stroke-width: 1
+  }
+
+  ubuntu: Ubuntu {
+    label: "ubuntu\n:2220\nUbuntu 26.04"
+    style: {
+      fill: "#e3f2fd"
+      stroke: "#1565c0"
+      stroke-width: 2
+    }
+  }
+
+  agentslab: "agents-lab" {
+    label: "agents-lab\n:2230\nUbuntu 26.04"
+    style: {
+      fill: "#e3f2fd"
+      stroke: "#1565c0"
+      stroke-width: 2
+    }
+  }
+
+  rhel10: RHEL {
+    label: "rhel10\n:2240\nRHEL 10.2"
+    style: {
+      fill: "#fff3e0"
+      stroke: "#e65100"
+      stroke-width: 2
+    }
+  }
+
+  awslinux: AWS {
+    label: "awslinux\n:2250\nAmazon Linux 2023"
+    style: {
+      fill: "#fff8e1"
+      stroke: "#f9a825"
+      stroke-width: 2
+    }
+  }
+
+  centos10: CentOS {
+    label: "centos10\n:2260\nCentOS Stream 10"
+    style: {
+      fill: "#fce4ec"
+      stroke: "#880e4f"
+      stroke-width: 2
+    }
+  }
+}
+
+hitl: "HITL\nGate" {
+  shape: diamond
+  label: "HITL\nAprovação\nHumana"
+  style: {
+    fill: "#ffecb3"
+    stroke: "#f9a825"
+    stroke-width: 3
+  }
+}
+
+loop: "Loop AIOps" {
+  label: "Loop AIOps\nDiagnóstico →\nAuditoria →\nValidação\n→ Aplicação"
+  style: {
+    fill: "#e8f5e9"
+    stroke: "#2e7d32"
+    stroke-width: 2
+  }
+}
+
+services -> managed
+managed -> hitl
+hitl -> loop
+loop -> services
