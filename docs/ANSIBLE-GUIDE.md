@@ -1,18 +1,18 @@
-# Guia Completo — A[opencode.jsonc: deny comandos destrutivos]sible no Projeto AIOps Control Node
+# Guia Completo — Ansible no Projeto AIOps Control Node
 
-Este documento explica, em detalhes conceituais e práticos, como o A[opencode.jsonc: deny comandos destrutivos]sible é utilizado no projeto `aiops-control-node`, sua importância no contexto de SRE/DevOps, o fluxo de trabalho obrigatório e exemplos práticos para os hosts gerenciados (`centos10`, `amazonlinux-2023`, `rhel10`, `ubuntu`, `agents-lab`).
+Este documento explica, em detalhes conceituais e práticos, como o **Ansible** é utilizado no projeto `aiops-control-node`, sua importância no contexto de SRE/DevOps, o fluxo de trabalho obrigatório e exemplos práticos para os hosts gerenciados (`centos10`, `amazonlinux-2023`, `rhel10`, `ubuntu`, `agents-lab`).
 
 ---
 
 ## Sumário
 
-1. [O que é o A[opencode.jsonc: deny comandos destrutivos]sible?](#1-o-que-é-o-ansible)
-2. [Por que A[opencode.jsonc: deny comandos destrutivos]sible neste projeto?](#2-por-que-ansible-neste-projeto)
-3. [A[opencode.jsonc: deny comandos destrutivos]quitetura e componentes](#3-arquitetura-e-componentes)
+1. [O que é o Ansible?](#1-o-que-é-o-ansible)
+2. [Por que Ansible neste projeto?](#2-por-que-ansible-neste-projeto)
+3. [Arquitetura e componentes](#3-arquitetura-e-componentes)
 4. [Fluxo de trabalho obrigatório](#4-fluxo-de-trabalho-obrigatório)
 5. [Passo a passo: do zero ao primeiro playbook](#5-passo-a-passo-do-zero-ao-primeiro-playbook)
 6. [Exemplos práticos por host](#6-exemplos-práticos-por-host)
-7. [A[opencode.jsonc: deny comandos destrutivos]sible Vault: gerenciamento de segredos](#7-ansible-vault-gerenciamento-de-segredos)
+7. [Ansible Vault: gerenciamento de segredos](#7-ansible-vault-gerenciamento-de-segredos)
 8. [Validação antes de aplicar](#8-validação-antes-de-aplicar)
 9. [Diagramas e esquemas](#9-diagramas-e-esquemas)
 10. [Importância no contexto AIOps/SRE](#10-importância-no-contexto-aiops-sre)
@@ -20,41 +20,41 @@ Este documento explica, em detalhes conceituais e práticos, como o A[opencode.j
 
 ---
 
-## 1. O que é o A[opencode.jsonc: deny comandos destrutivos]sible?
+## 1. O que é o Ansible?
 
-O **A[opencode.jsonc: deny comandos destrutivos]sible** é uma ferramenta de automação de TI open source (Red Hat) para gerenciamento de configuração, implantação de aplicações e orquestração de tarefas. Seus pilares:
+O **Ansible** é uma ferramenta de automação de TI open source (Red Hat) para gerenciamento de configuração, implantação de aplicações e orquestração de tarefas. Seus pilares:
 
 | Pilar | Descrição |
 |-------|-----------|
-| **Agentless** | Não precisa instalar agente nos hosts remotos. A[opencode.jsonc: deny comandos destrutivos]enas requer SSH e Python. |
+| **Agentless** | Não precisa instalar agente nos hosts remotos. Apenas requer SSH e Python. |
 | **Declarativo** | Você descreve o *estado desejado* (ex: "o pacote nginx deve estar instalado e iniciado"), não os passos imperativos. |
 | **Idempotente** | Executar a mesma tarefa múltiplas vezes produz o mesmo resultado, sem efeitos colaterais após a primeira aplicação. |
 | **YAML** | Playbooks e inventários são escritos em YAML, legível por humanos e fácil de versionar em Git. |
 
 ---
 
-## 2. Por que A[opencode.jsonc: deny comandos destrutivos]sible neste projeto?
+## 2. Por que Ansible neste projeto?
 
-O `aiops-control-node` gerencia servidores Enterprise Linux distribuídos. Sem automação, cada mudança exigiria acesso manual via SSH a cada host, propenso a erros e sem rastreabilidade. O A[opencode.jsonc: deny comandos destrutivos]sible resolve:
+O `aiops-control-node` gerencia servidores Enterprise Linux distribuídos. Sem automação, cada mudança exigiria acesso manual via SSH a cada host, propenso a erros e sem rastreabilidade. O Ansible resolve:
 
-| Problema manual | Solução com A[opencode.jsonc: deny comandos destrutivos]sible |
+| Problema manual | Solução com Ansible |
 |-----------------|---------------------|
 | Alterar `/etc/hostname` em 5 hosts um por um | Um playbook altera todos de forma consistente |
 | Esquecer se um serviço foi iniciado em um host | Idempotência garante o estado desejado |
 | Sem registro do que foi alterado | Playbooks versionados em Git servem como documentação executável |
 | Risco de comandos destrutivos acidentais | `--check --diff` simula antes de aplicar; `policy-validator` bloqueia comandos perigosos |
-| Senhas e chaves expostas | `A[opencode.jsonc: deny comandos destrutivos]sible Vault` criptografa segredos |
+| Senhas e chaves expostas | `Ansible Vault` criptografa segredos |
 
 ---
 
-## 3. A[opencode.jsonc: deny comandos destrutivos]quitetura e componentes
+## 3. Arquitetura e componentes
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                    CONTROL NODE (Ubuntu 26.04)                  │
-│                                                                 │"
+│                                                                 │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐   │
-│  │  Inventário │  │  Playbooks  │  │  A[opencode.jsonc: deny comandos destrutivos]sible Vault      │   │
+│  │  Inventário │  │  Playbooks  │  │  Ansible Vault       │   │
 │  │  inventory.ini│ │  .yml       │  │  (segredos cript.)  │   │
 │  └──────┬──────┘  └──────┬──────┘  └───────────┬─────────┘   │
 │         │                │                     │               │
@@ -67,10 +67,10 @@ O `aiops-control-node` gerencia servidores Enterprise Linux distribuídos. Sem a
         │                      │                      │
    ┌────▼────┐            ┌────▼────┐           ┌────▼────┐
    │centos10 │            │rhel10   │           │awslinux │
-   │CentOS   │            │RHEL 10  │           │A[opencode.jsonc: deny comandos destrutivos]azon   │
-   │Stream 10│            │         │           │Linux 2023│
-   │SSH:2260 │            │SSH:2240 │           │SSH:2250 │
-   └────┬────┘            └────┬────┘           └────┬────┘
+   │CentOS   │            │RHEL 10  │           │Linux 2023│
+   │Stream 10│            │         │           │SSH:2250 │
+   │SSH:2260 │            │SSH:2240 │           └────┬────┘
+   └────┬────┘            └────┬────┘                │
         │                      │                      │
    ┌────▼────┐            ┌────▼────┐           ┌────▼────┐
    │ubuntu   │            │agents-lab│           │         │
@@ -84,10 +84,10 @@ O `aiops-control-node` gerencia servidores Enterprise Linux distribuídos. Sem a
 
 | Componente | Função no projeto |
 |------------|-------------------|
-| **Control Node** | Ubuntu 26.04 onde o A[opencode.jsonc: deny comandos destrutivos]sible está instalado e os playbooks são executados |
+| **Control Node** | Ubuntu 26.04 onde o Ansible está instalado e os playbooks são executados |
 | **Managed Nodes** | Os 5 hosts Linux gerenciados via SSH |
-| **Inventory** | A[opencode.jsonc: deny comandos destrutivos]quivo `ansible/inventory.ini` que lista hosts, grupos, portas e usuários |
-| **Playbook** | A[opencode.jsonc: deny comandos destrutivos]quivo YAML com uma lista de plays e tarefas a serem executadas |
+| **Inventory** | Arquivo `ansible/inventory.ini` que lista hosts, grupos, portas e usuários |
+| **Playbook** | Arquivo YAML com uma lista de plays e tarefas a serem executadas |
 | **Task** | Unidade mínima de trabalho (ex: instalar pacote, copiar arquivo, iniciar serviço) |
 | **Module** | Implementação de uma tarefa (ex: `ansible.builtin.package`, `ansible.builtin.service`, `ansible.builtin.lineinfile`) |
 | **Handler** | Tarefa executada apenas quando notificada por outra tarefa (ex: reiniciar sshd após mudar `sshd_config`) |
@@ -98,7 +98,7 @@ O `aiops-control-node` gerencia servidores Enterprise Linux distribuídos. Sem a
 
 ## 4. Fluxo de trabalho obrigatório
 
-Toda alteração persistente na infraestrutura segue este fluxo, conforme definido no `AGENTS.md` e nas skills `ansible-remediation` e `policy-validator`:
+Toda alteração persistente na infraestrutura segue este fluxo, conforme definido no `AGENTS.md`:
 
 ```
 ┌─────────────┐
@@ -107,7 +107,7 @@ Toda alteração persistente na infraestrutura segue este fluxo, conforme defini
        │
        ▼
 ┌─────────────┐
-│  2. A[opencode.jsonc: deny comandos destrutivos]ditoria  │  ← lpic1-audit: verifica hardening e conformidade
+│  2. Auditoria  │  ← lpic1-audit: verifica hardening e conformidade
 └──────┬──────────┘
        │
        ▼
@@ -136,7 +136,7 @@ Toda alteração persistente na infraestrutura segue este fluxo, conforme defini
        │
        ▼
 ┌─────────────┐
-│  7. A[opencode.jsonc: deny comandos destrutivos]licação │  ← ansible-playbook (sem --check)
+│  7. Aplicação │  ← ansible-playbook (sem --check)
 │   real        │
 └──────┬──────────┘
        │
@@ -153,7 +153,7 @@ Toda alteração persistente na infraestrutura segue este fluxo, conforme defini
 
 ## 5. Passo a passo: do zero ao primeiro playbook
 
-### 5.1 Instalar o A[opencode.jsonc: deny comandos destrutivos]sible no Control Node
+### 5.1 Instalar o Ansible no Control Node
 
 ```bash
 # No Ubuntu 26.04 (Control Node)
@@ -164,35 +164,31 @@ ansible --version
 
 ### 5.2 Configurar o inventário
 
-Crie o arquivo `ansible/inventory.ini`:
+O arquivo `ansible/inventory.ini` já existe no projeto. Exemplo de referência:
 
 ```ini
-[ubuntu]
-ubuntu ansible_host=ubuntu ansible_port=2220 ansible_user=labuser
+[centos]
+centos10 ansible_host=127.0.0.1 ansible_port=2260 ansible_user=ansible-ops ansible_ssh_private_key_file=~/.ssh/id_linux-mcp-server
 
-[agents]
-agents-lab ansible_host=agents-lab ansible_port=2230 ansible_user=labuser
+[amazonlinux]
+awslinux ansible_host=127.0.0.1 ansible_port=2250 ansible_user=ansible-ops ansible_ssh_private_key_file=~/.ssh/id_linux-mcp-server
 
 [rhel]
-rhel10 ansible_host=rhel10 ansible_port=2240 ansible_user=labuser
+rhel10 ansible_host=127.0.0.1 ansible_port=2240 ansible_user=ansible-ops ansible_ssh_private_key_file=~/.ssh/id_linux-mcp-server
 
-[amazon]
-awslinux ansible_host=amazonlinux-2023 ansible_port=2250 ansible_user=labuser
-
-[centos]
-centos10 ansible_host=centos10 ansible_port=2260 ansible_user=labuser
+[ubuntu_nodes]
+ubuntu ansible_host=127.0.0.1 ansible_port=2220 ansible_user=ansible-ops ansible_ssh_private_key_file=~/.ssh/id_linux-mcp-server
+agents-lab ansible_host=127.0.0.1 ansible_port=2230 ansible_user=ansible-ops ansible_ssh_private_key_file=~/.ssh/id_linux-mcp-server
 
 [linux:children]
-ubuntu
-agents
-rhel
-amazon
 centos
+amazonlinux
+rhel
+ubuntu_nodes
 
 [linux:vars]
 ansible_python_interpreter=/usr/bin/python3
-ansible_ssh_private_key_file=~/.ssh/id_linux-mcp-server
-ansible_ssh_common_args='-o BatchMode=yes -o ConnectTimeout=5 -o StrictHostKeyChecking=accept-new'
+ansible_ssh_common_args='-o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new -o ConnectTimeout=5 -o ServerAliveInterval=30 -o ServerAliveCountMax=3'
 ```
 
 ### 5.3 Testar conectividade
@@ -216,27 +212,28 @@ Exemplo: garantir que o serviço SSH esteja iniciado e habilitado em todos os ho
 ---
 - name: Garantir serviço SSH ativo e habilitado
   hosts: linux
-  become: yes
+  become: true
+  become_method: ansible.builtin.sudo
   tasks:
     - name: Garantir que o sshd esteja iniciado e habilitado
       ansible.builtin.service:
-        name: sshd
+        name: ssh
         state: started
         enabled: yes
 
-    - name: A[opencode.jsonc: deny comandos destrutivos]licar hardening do sshd_config
+    - name: Aplicar hardening do sshd_config
       ansible.builtin.lineinfile:
-        path: /etc/ssh/sshd_config
+        path: /etc/ssh/sshd_config.d/99-hardening.conf
         regexp: '^#?PermitRootLogin'
         line: 'PermitRootLogin no'
         state: present
-        backup: yes
+        mode: '0644'
       notify: reiniciar sshd
 
   handlers:
     - name: reiniciar sshd
       ansible.builtin.service:
-        name: sshd
+        name: ssh
         state: restarted
 ```
 
@@ -261,24 +258,24 @@ O `--check` não aplica mudanças. O `--diff` mostra o que seria alterado em cad
 
 ### 5.7 Solicitar aprovação (HITL)
 
-A[opencode.jsonc: deny comandos destrutivos]resente ao operador:
+Apresente ao operador:
 
 ```
-## 🛑 HITL — Pedido de A[opencode.jsonc: deny comandos destrutivos]rovação
+## 🛑 HITL — Pedido de Aprovação
 
 ### Ação solicitada
-A[opencode.jsonc: deny comandos destrutivos]licar playbook hardening-sshd.yml em todos os hosts Linux.
+Aplicar playbook hardening-sshd.yml em todos os hosts Linux.
 
 ### Host(s) alvo
 ubuntu, agents-lab, rhel10, awslinux, centos10
 
 ### Impacto esperado
 - sshd_config será alterado (PermitRootLogin no)
-- Serviço sshd será reiniciado se a configuração mudar
+- Serviço ssh será reiniciado se a configuração mudar
 - Breve interrupção de SSH durante o restart (reconectar imediatamente)
 
 ### Plano de reversão
-Restaurar /etc/ssh/sshd_config do backup criado pelo A[opencode.jsonc: deny comandos destrutivos]sible (.backup) e reiniciar sshd.
+Restaurar /etc/ssh/sshd_config do backup e reiniciar sshd.
 
 ### Janela de execução
 Imediato, com operador disponível para reconectar via SSH.
@@ -289,7 +286,7 @@ Alta
 
 O operador responde `aprovar`, `rejeitar`, `ajustar` ou `adiar`.
 
-### 5.8 A[opencode.jsonc: deny comandos destrutivos]licar (somente após aprovação)
+### 5.8 Aplicar (somente após aprovação)
 
 ```bash
 ansible-playbook -i ansible/inventory.ini \
@@ -300,10 +297,10 @@ ansible-playbook -i ansible/inventory.ini \
 
 ```bash
 # Verificar se o sshd está rodando em todos os hosts
-ansible all -i ansible/inventory.ini -a "systemctl is-active sshd"
+ansible all -i ansible/inventory.ini -a "systemctl is-active ssh"
 
 # Verificar se a configuração foi aplicada
-ansible all -i ansible/inventory.ini -a "grep '^PermitRootLogin' /etc/ssh/sshd_config"
+ansible all -i ansible/inventory.ini -a "grep '^PermitRootLogin' /etc/ssh/sshd_config.d/99-hardening.conf"
 ```
 
 ---
@@ -315,8 +312,9 @@ ansible all -i ansible/inventory.ini -a "grep '^PermitRootLogin' /etc/ssh/sshd_c
 ```yaml
 ---
 - name: Definir hostname persistente nos hosts Linux
-  hosts: centos,rhel,amazon
-  become: yes
+  hosts: centos,rhel,amazonlinux
+  become: true
+  become_method: ansible.builtin.sudo
   tasks:
     - name: Definir hostname estático
       ansible.builtin.hostname:
@@ -337,8 +335,9 @@ ansible all -i ansible/inventory.ini -a "grep '^PermitRootLogin' /etc/ssh/sshd_c
 ```yaml
 ---
 - name: Configurar /etc/wsl.conf para WSL2
-  hosts: ubuntu,agents,rhel,amazon,centos
-  become: yes
+  hosts: ubuntu_nodes,centos,rhel,amazonlinux
+  become: true
+  become_method: ansible.builtin.sudo
   tasks:
     - name: Escrever /etc/wsl.conf
       ansible.builtin.copy:
@@ -347,38 +346,39 @@ ansible all -i ansible/inventory.ini -a "grep '^PermitRootLogin' /etc/ssh/sshd_c
           systemd=true
 
           [user]
-          default=labuser
+          default=arabelo
 
           [network]
           hostname = {{ inventory_hostname }}
           generateHosts = false
-          generateResolvConf = false
+          generateResolvConf = true
         dest: /etc/wsl.conf
         owner: root
         group: root
         mode: '0644'
 ```
 
-### 6.3 Remover serviço desnecessário (getty@tty1 em containers)
+### 6.3 Mascarar getty@tty1 em containers WSL2
 
 ```yaml
 ---
-- name: Desabilitar getty@tty1 em containers WSL2
-  hosts: linux
-  become: yes
+- name: Mascarar getty@tty1 em containers WSL2
+  hosts: ubuntu,agents-lab,rhel10,centos10
+  become: true
+  become_method: ansible.builtin.sudo
   tasks:
     - name: Mascarar getty@tty1.service
       ansible.builtin.systemd:
         name: getty@tty1.service
-        masked: yes
+        masked: true
         state: stopped
 ```
 
 ---
 
-## 7. A[opencode.jsonc: deny comandos destrutivos]sible Vault: gerenciamento de segredos
+## 7. Ansible Vault: gerenciamento de segredos
 
-Nunca armazene senhas, tokens ou chaves privadas em texto claro nos playbooks. Use o **A[opencode.jsonc: deny comandos destrutivos]sible Vault** para criptografar arquivos de variáveis sensíveis.
+Nunca armazene senhas, tokens ou chaves privadas em texto claro nos playbooks. Use o **Ansible Vault** para criptografar arquivos de variáveis sensíveis.
 
 ### Criar arquivo criptografado
 
@@ -399,14 +399,15 @@ vault_api_token: "token-de-api-confidencial"
 ---
 - name: Exemplo com vault
   hosts: linux
-  become: yes
+  become: true
+  become_method: ansible.builtin.sudo
   vars_files:
     - ansible/group_vars/linux/vault.yml
   tasks:
     - name: Exibir apenas o nome da variável (não o valor)
       ansible.builtin.debug:
         msg: "Token configurado (valor oculto por segurança)"
-      no_log: true  # evita exibir o valor nos logs do A[opencode.jsonc: deny comandos destrutivos]sible
+      no_log: true
 ```
 
 ### Executar playbook com vault
@@ -458,9 +459,9 @@ ansible-playbook -i ansible/inventory.ini \
 
 ### 8.3 policy-validator
 
-A[opencode.jsonc: deny comandos destrutivos]tes de aplicar, rode a skill `policy-validator` para verificar:
-- A[opencode.jsonc: deny comandos destrutivos]sência de comandos destrutivos (`rm -rf`, `mkfs`, `dd`, `wipefs`, `reboot`)
-- A[opencode.jsonc: deny comandos destrutivos]sência de credenciais em texto claro
+Antes de aplicar, rode a skill `policy-validator` para verificar:
+- Ausência de comandos destrutivos (`rm -rf`, `mkfs`, `dd`, `wipefs`, `reboot`)
+- Ausência de credenciais em texto claro
 - Idempotência das tarefas
 
 ---
@@ -471,15 +472,15 @@ A[opencode.jsonc: deny comandos destrutivos]tes de aplicar, rode a skill `policy
 
 ```mermaid
 flowchart TD
-    A[Início: Diagnóstico via linux-triage] --> B[A[opencode.jsonc: deny comandos destrutivos]ditoria via lpic1-audit]
+    A[Início: Diagnóstico via linux-triage] --> B[Auditoria via lpic1-audit]
     B --> C[Gerar playbook via ansible-remediation]
     C --> D[policy-validator: regras de segurança]
     D -->|Reprovado| C
-    D -->|A[opencode.jsonc: deny comandos destrutivos]rovado| E[ansible-lint + --check --diff]
+    D -->|Aprovado| E[ansible-lint + --check --diff]
     E -->|Erro| C
     E -->|OK| F[HITL: aprovação humana]
     F -->|Rejeitado| G[Fim: ação não executada]
-    F -->|A[opencode.jsonc: deny comandos destrutivos]rovado| H[ansible-playbook aplicação real]
+    F -->|Aprovado| H[ansible-playbook aplicação real]
     H --> I[Validação pós-aplicação]
     I --> Fim[Fim: relatório técnico]
 ```
@@ -489,27 +490,25 @@ flowchart TD
 ```mermaid
 graph TD
     subgraph "Camada 1: Prevenção"
-        A[opencode.json: deny comandos destrutivos]
-        B[policy-validator: bloquear playbooks inseguros]
+        A[policy-validator: bloquear playbooks inseguros]
     end
     subgraph "Camada 2: Detecção"
-        C[ansible-lint: erros de YAML e boas práticas]
-        D[--check --diff: simulação de impacto]
+        B[ansible-lint: erros de YAML e boas práticas]
+        C[--check --diff: simulação de impacto]
     end
-    subgraph "Camada 3: A[opencode.jsonc: deny comandos destrutivos]torização"
-        E[human-in-the-loop: aprovação explícita do operador]
+    subgraph "Camada 3: Autorização"
+        D[human-in-the-loop: aprovação explícita do operador]
     end
-    subgraph "Camada 4: A[opencode.jsonc: deny comandos destrutivos]ditoria"
-        F[logs/approvals: registro de decisões]
-        G[MEMORY.md: histórico do projeto]
+    subgraph "Camada 4: Auditoria"
+        E[logs/approvals: registro de decisões]
+        F[MEMORY.md: histórico do projeto]
     end
 
-    A[opencode.jsonc: deny comandos destrutivos]--> B
+    A --> B
     B --> C
     C --> D
     D --> E
     E --> F
-    F --> G
 ```
 
 ### Hierarquia de arquivos do projeto
@@ -519,33 +518,18 @@ aiops-control-node/
 ├── AGENTS.md                    # Papel e guardrails do agente
 ├── MEMORY.md                    # Memória do projeto (este contexto)
 ├── README.md                    # Visão geral do projeto
-└── ~/.config/opencode/opencode.jsonc # Configuração global do agente (modelo, MCPs e permissões)
+├── docs/
+│   ├── ANSIBLE-GUIDE.md         # Este documento
+│   └── EMERGENCY-STOP.md        # Procedimento de parada de emergência
 ├── ansible/
 │   ├── inventory.ini            # Inventário de hosts
 │   ├── group_vars/
 │   │   └── linux/
-│   │       └── vault.yml        # Variáveis criptografadas (A[opencode.jsonc: deny comandos destrutivos]sible Vault)
+│   │       └── vault.yml        # Variáveis criptografadas (Ansible Vault)
 │   └── playbooks/
 │       ├── hardening-sshd.yml
 │       ├── set-hostnames.yml
 │       └── wsl-conf.yml
-├── .opencode/
-│   └── skills/
-│       ├── linux-triage/
-│       │   └── SKILL.md
-│       ├── ansible-remediation/
-│       │   └── SKILL.md
-│       ├── lpic1-audit/
-│       │   └── SKILL.md
-│       ├── human-in-the-loop/
-│       │   └── SKILL.md
-│       ├── policy-validator/
-│       │   └── SKILL.md
-│       └── observability-collect/
-│           └── SKILL.md
-├── docs/
-│   ├── ANSIBLE-GUIDE.md         # Este documento
-│   └── EMERGENCY-STOP.md        # Procedimento de parada de emergência
 ├── scripts/
 │   └── set-hostname-ubuntu.sh
 └── logs/
@@ -557,18 +541,18 @@ aiops-control-node/
 
 ## 10. Importância no contexto AIOps/SRE
 
-No contexto de **AIOps (A[opencode.jsonc: deny comandos destrutivos]tificial Intelligence for Operations)** e **SRE (Site Reliability Engineering)**, o A[opencode.jsonc: deny comandos destrutivos]sible desempenha papéis críticos:
+No contexto de **AIOps (Artificial Intelligence for Operations)** e **SRE (Site Reliability Engineering)**, o Ansible desempenha papéis críticos:
 
-| Dimensão | Contribuição do A[opencode.jsonc: deny comandos destrutivos]sible |
+| Dimensão | Contribuição do Ansible |
 |----------|------------------------|
 | **Confiabilidade** | Garante que todos os hosts tenham a mesma configuração, reduzindo "configuração drift" |
-| **Escalabilidade** | A[opencode.jsonc: deny comandos destrutivos]mesma tarefa se aplica a 5 ou 500 hosts com o mesmo esforço |
+| **Escalabilidade** | A mesma tarefa se aplica a 5 ou 500 hosts com o mesmo esforço |
 | **Recuperação de desastres** | Playbooks versionados permitem recriar ambientes rapidamente |
 | **Segurança** | Hardening consistente (sshd, firewall, usuários) em todos os hosts |
-| **Observabilidade** | Coleta de facts do A[opencode.jsonc: deny comandos destrutivos]sible fornece inventário atualizado do estado dos hosts |
+| **Observabilidade** | Coleta de facts do Ansible fornece inventário atualizado do estado dos hosts |
 | **Resposta a incidentes** | Playbooks pré-aprovados podem ser aplicados rapidamente após incidente validado |
 
-### O loop AIOps com A[opencode.jsonc: deny comandos destrutivos]sible
+### O loop AIOps com Ansible
 
 ```
 Observação (linux-triage + observability-collect)
@@ -595,15 +579,15 @@ Verificação (pós-aplicação + critério de validação)
 
 ## 11. Checklist de boas práticas
 
-A[opencode.jsonc: deny comandos destrutivos]tes de considerar um playbook pronto para produção:
+Antes de considerar um playbook pronto para produção:
 
 - [ ] O playbook está em `ansible/playbooks/` com nome descritivo
 - [ ] Todas as tarefas são idempotentes (`state: present/absent/started/stopped`)
 - [ ] Não há comandos destrutivos (`rm -rf`, `mkfs`, `dd`, `wipefs`, `reboot`)
-- [ ] Não há credenciais em texto claro (use A[opencode.jsonc: deny comandos destrutivos]sible Vault)
+- [ ] Não há credenciais em texto claro (use Ansible Vault)
 - [ ] `ansible-lint` passou sem erros
 - [ ] `ansible-playbook --check --diff` executado com sucesso
-- [ ] A[opencode.jsonc: deny comandos destrutivos]rovação via `human-in-the-loop` registrada em `logs/approvals/`
+- [ ] Aprovação via `human-in-the-loop` registrada em `logs/approvals/`
 - [ ] Plano de reversão documentado
 - [ ] Critério de validação definido no relatório técnico
 
@@ -611,8 +595,8 @@ A[opencode.jsonc: deny comandos destrutivos]tes de considerar um playbook pronto
 
 ## Referências
 
-- [A[opencode.jsonc: deny comandos destrutivos]sible Documentation](https://docs.ansible.com/)
-- [A[opencode.jsonc: deny comandos destrutivos]sible Best Practices](https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_best_practices.html)
-- [A[opencode.jsonc: deny comandos destrutivos]sible Vault](https://docs.ansible.com/ansible/latest/vault_guide/index.html)
-- [Event-Driven A[opencode.jsonc: deny comandos destrutivos]sible](https://docs.ansible.com/ansible-eda/)
-- [Red Hat: AIOps and A[opencode.jsonc: deny comandos destrutivos]sible A[opencode.jsonc: deny comandos destrutivos]tomation Platform](https://redhat.com/en/blog/aiops-and-ansible-automation-platform-where-ai-intelligence-meets-trusted-execution)
+- [Ansible Documentation](https://docs.ansible.com/)
+- [Ansible Best Practices](https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_best_practices.html)
+- [Ansible Vault](https://docs.ansible.com/ansible/latest/vault_guide/index.html)
+- [Event-Driven Ansible](https://docs.ansible.com/ansible-eda/)
+- [Red Hat: AIOps and Ansible Automation Platform](https://redhat.com/en/blog/aiops-and-ansible-automation-platform-where-ai-intelligence-meets-trusted-execution)
