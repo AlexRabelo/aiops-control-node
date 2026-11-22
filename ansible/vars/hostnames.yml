@@ -1,0 +1,9 @@
+# Hostnames desejados por host (inventário)
+# Referenciado por ansible/playbooks/hostname-correction.yml
+# Nomes padronizados conforme ~/.ssh/config
+hostnames:
+  centos10: centos10
+  awslinux: amazonlinux-2023
+  rhel10: rhel10
+  ubuntu: ubuntu
+  agents-lab: agents-lab

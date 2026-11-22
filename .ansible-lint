@@ -1,0 +1,14 @@
+---
+# Configuração do Ansible Lint — AIOps Control Node
+# Exclusões para casos legítimos onde não há módulo nativo equivalente
+
+skip_list:
+  - command-instead-of-module
+
+warn_list: []
+enable_list: []
+exclude_paths:
+  - .git/
+  - .venv/
+
+verbosity: 1

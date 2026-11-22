@@ -1,0 +1,49 @@
+---
+# Playbook: diagnóstico somente-leitura dos hosts
+# Não requer sudo/become — coleta apenas informações via SSH.
+# Seguro para execução sem alterar o estado dos hosts.
+
+- name: Diagnóstico somente-leitura dos hosts gerenciados
+  hosts: linux
+  gather_facts: false
+  become: false
+  tasks:
+    - name: Coletar hostname atual
+      ansible.builtin.command: hostnamectl --static
+      register: hostname_info
+      changed_when: false
+
+    - name: Coletar versão do SO
+      ansible.builtin.command: cat /etc/os-release
+      register: os_info
+      changed_when: false
+
+    - name: Coletar serviços falhados
+      # ansible-lint: skip=command-instead-of-module
+      ansible.builtin.command: systemctl --failed --no-pager
+      register: failed_services
+      changed_when: false
+      ignore_errors: true
+
+    - name: Coletar uso de disco
+      ansible.builtin.command: df -hT /
+      register: disk_info
+      changed_when: false
+
+    - name: Coletar uso de memória
+      ansible.builtin.command: free -h
+      register: memory_info
+      changed_when: false
+
+    - name: Reportar diagnóstico consolidado
+      ansible.builtin.debug:
+        msg: |
+          ============================================
+          Host: {{ inventory_hostname }}
+          ============================================
+          Hostname: {{ hostname_info.stdout.strip() }}
+          SO: {{ os_info.stdout.splitlines()[0] if os_info.stdout else 'N/A' }}
+          Memória: {{ memory_info.stdout.splitlines()[1] if memory_info.stdout else 'N/A' }}
+          Disco (/): {{ disk_info.stdout.splitlines()[1] if disk_info.stdout else 'N/A' }}
+          Serviços falhados: {{ failed_services.stdout.strip() if failed_services.stdout and failed_services.rc == 0 else 'erro ao coletar ou nenhum' }}
+          ============================================

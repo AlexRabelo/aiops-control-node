@@ -1,0 +1,34 @@
+---
+- name: Provisionar e restringir usuario de servico ansible-ops
+  hosts: all
+  become: true
+  vars:
+    service_user: ansible-ops
+    ssh_pub_key_path: "{{ lookup('env', 'HOME') }}/.ssh/id_linux-mcp-server.pub"
+
+  tasks:
+    - name: Criar usuario de servico dedicado
+      ansible.builtin.user:
+        name: "{{ service_user }}"
+        comment: "AIOps Automation Service Account"
+        shell: /bin/bash
+        create_home: true
+        state: present
+
+    - name: Configurar chave SSH autorizada para o usuario de servico
+      ansible.posix.authorized_key:
+        user: "{{ service_user }}"
+        path: "/home/{{ service_user }}/.ssh/authorized_keys"
+        state: present
+        key: "{{ lookup('file', ssh_pub_key_path) }}"
+
+    - name: Configurar sudo restrito (menor privilegio) e validado com visudo
+      ansible.builtin.copy:
+        dest: "/etc/sudoers.d/{{ service_user }}"
+        content: |
+          # Sudo restrito para automacao Ansible (AIOps Control Node)
+          {{ service_user }} ALL=(root) NOPASSWD: /usr/bin/hostnamectl, /bin/sh, /usr/bin/python3
+        owner: root
+        group: root
+        mode: "0440"
+        validate: "/usr/sbin/visudo -cf %s"

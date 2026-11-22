@@ -1,0 +1,26 @@
+# Chaves privadas, credenciais e segredos (NUNCA versionar)
+.env
+.env.*
+*.pem
+*.key
+id_*
+!*.pub
+known_hosts*
+
+# Ansible e temporários
+*.retry
+*.bak
+.ansible/tmp/
+.ansible/pc/
+
+# Python e caches
+__pycache__/
+*.py[cod]
+.venv/
+
+# Sistema operacional e editores
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
