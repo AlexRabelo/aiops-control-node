@@ -42,7 +42,7 @@ O `aiops-control-node` gerencia servidores Enterprise Linux distribuídos. Sem a
 | Alterar `/etc/hostname` em 5 hosts um por um | Um playbook altera todos de forma consistente |
 | Esquecer se um serviço foi iniciado em um host | Idempotência garante o estado desejado |
 | Sem registro do que foi alterado | Playbooks versionados em Git servem como documentação executável |
-| Risco de comandos destrutivos acidentais | `--check --diff` simula antes de aplicar; `policy-validator` bloqueia comandos perigosos |
+| Risco de comandos destrutivos acidentais | `--check --diff` simula antes de aplicar |
 | Senhas e chaves expostas | `Ansible Vault` criptografa segredos |
 
 ---
@@ -61,7 +61,7 @@ graph TD
 
     subgraph ManagedNodes["Managed Nodes (via SSH 2220-2260)"]
         direction TB
-        subgroup UbuntuNodes["ubuntu_nodes"]
+        subgraph UbuntuNodes["ubuntu_nodes"]
             Ubuntu["ubuntu<br/>SSH:2220<br/>Ubuntu 26.04"]
             AgentsLab["agents-lab<br/>SSH:2230<br/>Ubuntu 26.04"]
         end
@@ -101,7 +101,7 @@ Toda alteração persistente na infraestrutura segue este fluxo, conforme defini
 flowchart TD
     A[Início: Diagnóstico via SSH] --> B[Auditoria LPIC-1]
     B --> C[Gerar playbook idempotente]
-    C --> D[ansible-lint + policy-validator]
+    C --> D[ansible-lint]
     D -->|Reprovado| C
     D -->|Aprovado| E[--check --diff simulação]
     E -->|Erro| C
@@ -114,8 +114,6 @@ flowchart TD
 
 **Regra de ouro:** Nunca pule a etapa de simulação (`--check --diff`) nem a aprovação humana (HITL).
 
-**Regra de ouro:** Nunca pule a etapa 5 (simulação) ou a etapa 6 (aprovação humana).
-
 ---
 
 ## 5. Passo a passo: do zero ao primeiro playbook
@@ -125,9 +123,11 @@ flowchart TD
 ```bash
 # No Ubuntu 26.04 (Control Node)
 sudo apt update
-sudo apt install -y ansible python3-pip sshpass
+sudo apt install -y ansible ansible-lint sshpass
 ansible --version
 ```
+
+> Nota: Em Ubuntu 26.04 (PEP 668), use `sudo apt install -y ansible-lint` em vez de `pip3 install` para evitar conflitos com o gerenciador de pacotes externo.
 
 ### 5.2 Configurar o inventário
 
@@ -156,6 +156,9 @@ ubuntu_nodes
 [linux:vars]
 ansible_python_interpreter=/usr/bin/python3
 ansible_ssh_common_args='-o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new -o ConnectTimeout=5 -o ServerAliveInterval=30 -o ServerAliveCountMax=3'
+
+[ubuntu_nodes:vars]
+ansible_become_prompt=[sudo: authenticate] Password:
 ```
 
 ### 5.3 Testar conectividade
@@ -171,9 +174,20 @@ ansible centos -i ansible/inventory.ini -m ping
 ansible all -i ansible/inventory.ini -a "hostnamectl --static"
 ```
 
-### 5.4 Criar o primeiro playbook
+### 5.4 Playbooks existentes no projeto
 
-Exemplo: garantir que o serviço SSH esteja iniciado e habilitado em todos os hosts Linux.
+O repositório já contém os seguintes playbooks em `ansible/playbooks/`:
+
+| Playbook | Propósito |
+|----------|-----------|
+| `bootstrap-service-user.yml` | Provisiona e restringe o usuário de serviço `ansible-ops` com sudo restrito |
+| `diagnostico-somente-leitura.yml` | Coleta somente-leitura (hostname, SO, serviços falhados, disco, memória) |
+| `hostname-correction.yml` | Corrige hostnames usando `ansible/vars/hostnames.yml` |
+| `ssh-hardening.yml` | Hardening SSH (`PasswordAuthentication no`) e máscara de `getty@tty1.service` |
+
+### 5.5 Criar o primeiro playbook
+
+Exemplo: garantir que o serviço SSH esteja iniciado e habilitado em todos os hosts Linux. Suporta tanto Debian/Ubuntu (`ssh`) quanto RedHat (`sshd`):
 
 ```yaml
 ---
@@ -181,10 +195,12 @@ Exemplo: garantir que o serviço SSH esteja iniciado e habilitado em todos os ho
   hosts: linux
   become: true
   become_method: ansible.builtin.sudo
+  vars:
+    ssh_service_name: "{{ 'ssh' if ansible_os_family == 'Debian' else 'sshd' }}"
   tasks:
-    - name: Garantir que o sshd esteja iniciado e habilitado
+    - name: Garantir que o serviço SSH esteja iniciado e habilitado
       ansible.builtin.service:
-        name: ssh
+        name: "{{ ssh_service_name }}"
         state: started
         enabled: yes
 
@@ -195,18 +211,18 @@ Exemplo: garantir que o serviço SSH esteja iniciado e habilitado em todos os ho
         line: 'PermitRootLogin no'
         state: present
         mode: '0644'
-      notify: reiniciar sshd
+      notify: reiniciar ssh
 
   handlers:
-    - name: reiniciar sshd
+    - name: reiniciar ssh
       ansible.builtin.service:
-        name: ssh
+        name: "{{ ssh_service_name }}"
         state: restarted
 ```
 
 Salve como `ansible/playbooks/hardening-sshd.yml`.
 
-### 5.5 Validar com ansible-lint
+### 5.6 Validar com ansible-lint
 
 ```bash
 ansible-lint ansible/playbooks/hardening-sshd.yml
@@ -214,7 +230,7 @@ ansible-lint ansible/playbooks/hardening-sshd.yml
 
 Se não houver erros, prossiga. Caso houver, corrija o YAML ou as regras antes de continuar.
 
-### 5.6 Simular aplicação (dry-run)
+### 5.7 Simular aplicação (dry-run)
 
 ```bash
 ansible-playbook -i ansible/inventory.ini --check --diff \
@@ -223,7 +239,7 @@ ansible-playbook -i ansible/inventory.ini --check --diff \
 
 O `--check` não aplica mudanças. O `--diff` mostra o que seria alterado em cada arquivo.
 
-### 5.7 Solicitar aprovação (HITL)
+### 5.8 Solicitar aprovação (HITL)
 
 Apresente ao operador:
 
@@ -238,7 +254,7 @@ ubuntu, agents-lab, rhel10, awslinux, centos10
 
 ### Impacto esperado
 - sshd_config será alterado (PermitRootLogin no)
-- Serviço ssh será reiniciado se a configuração mudar
+- Serviço ssh/sshd será reiniciado se a configuração mudar
 - Breve interrupção de SSH durante o restart (reconectar imediatamente)
 
 ### Plano de reversão
@@ -253,18 +269,21 @@ Alta
 
 O operador responde `aprovar`, `rejeitar`, `ajustar` ou `adiar`.
 
-### 5.8 Aplicar (somente após aprovação)
+### 5.9 Aplicar (somente após aprovação)
 
 ```bash
 ansible-playbook -i ansible/inventory.ini \
+  --private-key ~/.ssh/id_linux-mcp-server \
+  --ask-become-pass \
   ansible/playbooks/hardening-sshd.yml
 ```
 
-### 5.9 Validar pós-aplicação
+### 5.10 Validar pós-aplicação
 
 ```bash
-# Verificar se o sshd está rodando em todos os hosts
+# Verificar se o serviço SSH está rodando em todos os hosts
 ansible all -i ansible/inventory.ini -a "systemctl is-active ssh"
+ansible all -i ansible/inventory.ini -a "systemctl is-active sshd"
 
 # Verificar se a configuração foi aplicada
 ansible all -i ansible/inventory.ini -a "grep '^PermitRootLogin' /etc/ssh/sshd_config.d/99-hardening.conf"
@@ -274,30 +293,159 @@ ansible all -i ansible/inventory.ini -a "grep '^PermitRootLogin' /etc/ssh/sshd_c
 
 ## 6. Exemplos práticos por host
 
-### 6.1 Definir hostname (centos10, rhel10, awslinux)
+### 6.1 Provisionar usuário de serviço ansible-ops
 
 ```yaml
 ---
-- name: Definir hostname persistente nos hosts Linux
-  hosts: centos,rhel,amazonlinux
+- name: Provisionar e restringir usuario de servico ansible-ops
+  hosts: all
   become: true
-  become_method: ansible.builtin.sudo
+  vars:
+    service_user: ansible-ops
+    ssh_pub_key_path: "{{ lookup('env', 'HOME') }}/.ssh/id_linux-mcp-server.pub"
   tasks:
-    - name: Definir hostname estático
-      ansible.builtin.hostname:
-        name: "{{ inventory_hostname }}"
-      when: ansible_hostname != inventory_hostname
+    - name: Criar usuario de servico dedicado
+      ansible.builtin.user:
+        name: "{{ service_user }}"
+        comment: "AIOps Automation Service Account"
+        shell: /bin/bash
+        create_home: true
+        state: present
 
-    - name: Garantir /etc/hostname correspondente
+    - name: Configurar chave SSH autorizada para o usuario de servico
+      ansible.posix.authorized_key:
+        user: "{{ service_user }}"
+        path: "/home/{{ service_user }}/.ssh/authorized_keys"
+        state: present
+        key: "{{ lookup('file', ssh_pub_key_path) }}"
+
+    - name: Configurar sudo restrito (menor privilegio) e validado com visudo
       ansible.builtin.copy:
-        content: "{{ inventory_hostname }}\n"
+        dest: "/etc/sudoers.d/{{ service_user }}"
+        content: |
+          # Sudo restrito para automacao Ansible (AIOps Control Node)
+          {{ service_user }} ALL=(root) NOPASSWD: /usr/bin/hostnamectl, /bin/sh, /usr/bin/python3
+        owner: root
+        group: root
+        mode: "0440"
+        validate: "/usr/sbin/visudo -cf %s"
+```
+
+Salve como `ansible/playbooks/bootstrap-service-user.yml`.
+
+### 6.2 Diagnóstico somente-leitura
+
+```yaml
+---
+- name: Diagnóstico somente-leitura dos hosts gerenciados
+  hosts: linux
+  gather_facts: false
+  become: false
+  tasks:
+    - name: Coletar hostname atual
+      ansible.builtin.command: hostnamectl --static
+      register: hostname_info
+      changed_when: false
+
+    - name: Coletar versão do SO
+      ansible.builtin.command: cat /etc/os-release
+      register: os_info
+      changed_when: false
+
+    - name: Coletar serviços falhados
+      ansible.builtin.command: systemctl --failed --no-pager
+      register: failed_services
+      changed_when: false
+      ignore_errors: true
+
+    - name: Coletar uso de disco
+      ansible.builtin.command: df -hT /
+      register: disk_info
+      changed_when: false
+
+    - name: Coletar uso de memória
+      ansible.builtin.command: free -h
+      register: memory_info
+      changed_when: false
+
+    - name: Reportar diagnóstico consolidado
+      ansible.builtin.debug:
+        msg: |
+          ============================================
+          Host: {{ inventory_hostname }}
+          ============================================
+          Hostname: {{ hostname_info.stdout.strip() }}
+          SO: {{ os_info.stdout.splitlines()[0] if os_info.stdout else 'N/A' }}
+          Memória: {{ memory_info.stdout.splitlines()[1] if memory_info.stdout else 'N/A' }}
+          Disco (/): {{ disk_info.stdout.splitlines()[1] if disk_info.stdout else 'N/A' }}
+          Serviços falhados: {{ failed_services.stdout.strip() if failed_services.stdout and failed_services.rc == 0 else 'erro ao coletar ou nenhum' }}
+          ============================================
+```
+
+Salve como `ansible/playbooks/diagnostico-somente-leitura.yml`.
+
+### 6.3 Corrigir hostname
+
+```yaml
+---
+- name: Corrigir hostname dos hosts WSL2 gerenciados
+  hosts: linux
+  become: true
+  vars_files:
+    - ../vars/hostnames.yml
+  tasks:
+    - name: Definir hostname desejado por inventário
+      ansible.builtin.set_fact:
+        desired_hostname: "{{ hostnames[inventory_hostname] | default(inventory_hostname) }}"
+
+    - name: Verificar hostname atual
+      ansible.builtin.command: hostnamectl --static
+      register: current_hostname
+      changed_when: false
+      check_mode: false
+
+    - name: Aplicar hostname via hostnamectl (quando diferente)
+      ansible.builtin.command: "hostnamectl set-hostname {{ desired_hostname }}"
+      when: current_hostname.stdout.strip() != desired_hostname
+      changed_when: current_hostname.stdout.strip() != desired_hostname
+
+    - name: Atualizar /etc/hostname (idempotente)
+      ansible.builtin.copy:
+        content: "{{ desired_hostname }}\n"
         dest: /etc/hostname
         owner: root
         group: root
         mode: '0644'
+      when: current_hostname.stdout.strip() != desired_hostname
+
+    - name: Atualizar /etc/wsl.conf com hostname e DNS determinístico
+      ansible.builtin.blockinfile:
+        path: /etc/wsl.conf
+        create: true
+        owner: root
+        group: root
+        mode: '0644'
+        block: |
+          [network]
+          hostname = {{ desired_hostname }}
+          generateResolvConf = false
+          generateHosts = false
+      when: current_hostname.stdout.strip() != desired_hostname
+
+    - name: Verificar hostname atual após ajuste
+      ansible.builtin.command: hostnamectl --static
+      register: new_hostname
+      changed_when: false
+      check_mode: false
+
+    - name: Reportar resultado
+      ansible.builtin.debug:
+        msg: "Hostname {{ inventory_hostname }}: {{ current_hostname.stdout.strip() }} -> {{ new_hostname.stdout.strip() }}"
 ```
 
-### 6.2 Configurar /etc/wsl.conf (hosts WSL2)
+Salve como `ansible/playbooks/hostname-correction.yml`.
+
+### 6.4 Configurar /etc/wsl.conf (hosts WSL2)
 
 ```yaml
 ---
@@ -318,14 +466,16 @@ ansible all -i ansible/inventory.ini -a "grep '^PermitRootLogin' /etc/ssh/sshd_c
           [network]
           hostname = {{ inventory_hostname }}
           generateHosts = false
-          generateResolvConf = true
+          generateResolvConf = false
         dest: /etc/wsl.conf
         owner: root
         group: root
         mode: '0644'
 ```
 
-### 6.3 Mascarar getty@tty1 em containers WSL2
+> Nota: `generateResolvConf = false` garante DNS determinístico e evita sobrescrita automática do `/etc/resolv.conf` pelo WSL2.
+
+### 6.5 Mascarar getty@tty1 em containers WSL2
 
 ```yaml
 ---
@@ -403,9 +553,6 @@ ansible-playbook -i ansible/inventory.ini \
 ### 8.1 ansible-lint
 
 ```bash
-# Instalar se necessário
-pip3 install ansible-lint
-
 # Validar um playbook
 ansible-lint ansible/playbooks/meu-playbook.yml
 
@@ -424,13 +571,6 @@ ansible-playbook -i ansible/inventory.ini \
 - `--check`: não faz mudanças reais
 - `--diff`: mostra as diferenças que seriam aplicadas em arquivos
 
-### 8.3 policy-validator
-
-Antes de aplicar, rode a skill `policy-validator` para verificar:
-- Ausência de comandos destrutivos (`rm -rf`, `mkfs`, `dd`, `wipefs`, `reboot`)
-- Ausência de credenciais em texto claro
-- Idempotência das tarefas
-
 ---
 
 ## 9. Diagramas e esquemas
@@ -439,11 +579,11 @@ Antes de aplicar, rode a skill `policy-validator` para verificar:
 
 ```mermaid
 flowchart TD
-    A[Início: Diagnóstico via linux-triage] --> B[Auditoria via lpic1-audit]
-    B --> C[Gerar playbook via ansible-remediation]
-    C --> D[policy-validator: regras de segurança]
+    A[Início: Diagnóstico via SSH] --> B[Auditoria LPIC-1]
+    B --> C[Gerar playbook idempotente]
+    C --> D[ansible-lint]
     D -->|Reprovado| C
-    D -->|Aprovado| E[ansible-lint + --check --diff]
+    D -->|Aprovado| E[--check --diff simulação]
     E -->|Erro| C
     E -->|OK| F[HITL: aprovação humana]
     F -->|Rejeitado| G[Fim: ação não executada]
@@ -457,25 +597,23 @@ flowchart TD
 ```mermaid
 graph TD
     subgraph "Camada 1: Prevenção"
-        A[policy-validator: bloquear playbooks inseguros]
+        A[ansible-lint: erros de YAML e boas práticas]
     end
     subgraph "Camada 2: Detecção"
-        B[ansible-lint: erros de YAML e boas práticas]
-        C[--check --diff: simulação de impacto]
+        B[--check --diff: simulação de impacto]
     end
     subgraph "Camada 3: Autorização"
-        D[human-in-the-loop: aprovação explícita do operador]
+        C[human-in-the-loop: aprovação explícita do operador]
     end
     subgraph "Camada 4: Auditoria"
-        E[Registro de decisões: HITL e relatórios]
-        F[MEMORY.md: histórico do projeto]
+        D[Registro de decisões: HITL e relatórios]
+        E[MEMORY.md: histórico do projeto]
     end
 
     A --> B
     B --> C
     C --> D
     D --> E
-    E --> F
 ```
 
 ### Hierarquia de arquivos do projeto
@@ -483,24 +621,22 @@ graph TD
 ```
 aiops-control-node/
 ├── AGENTS.md                    # Papel e guardrails do agente
-├── MEMORY.md                    # Memória do projeto (este contexto)
+├── MEMORY.md                    # Memória do projeto (estado e handoff)
 ├── README.md                    # Visão geral do projeto
 ├── docs/
 │   ├── ANSIBLE-GUIDE.md         # Este documento
-│   └── EMERGENCY-STOP.md        # Procedimento de parada de emergência
+│   ├── EMERGENCY-STOP.md        # Procedimento de parada de emergência
+│   └── IA-BEST-PRACTICES.md     # Melhores práticas para IA em infraestrutura
 ├── ansible/
 │   ├── inventory.ini            # Inventário de hosts
-│   ├── group_vars/
-│   │   └── linux/
-│   │       └── vault.yml        # Variáveis criptografadas (Ansible Vault)
+│   ├── vars/
+│   │   └── hostnames.yml        # Hostnames desejados por host
 │   └── playbooks/
-│       ├── hardening-sshd.yml
-│       ├── set-hostnames.yml
-│       └── wsl-conf.yml
-├── scripts/
-│   └── set-hostname-ubuntu.sh
-└── logs/
-    └── incidents/               # Log de incidentes
+│       ├── bootstrap-service-user.yml
+│       ├── diagnostico-somente-leitura.yml
+│       ├── hostname-correction.yml
+│       └── ssh-hardening.yml
+└── scripts/
 ```
 
 ---
@@ -520,17 +656,24 @@ No contexto de **AIOps (Artificial Intelligence for Operations)** e **SRE (Site 
 
 ### O loop AIOps com Ansible
 
-```
-```mermaid
-flowchart TD
-    A[Observação: linux-triage + observability-collect] --> B
-    B[Detecção: lpic1-audit + métricas] --> C
-    C[Decisão: gerar playbook] --> D
-    D[Validação: policy-validator + --check --diff + HITL] --> E
-    E[Execução: ansible-playbook] --> F
-    F[Verificação: critério de validação] --> A
-```
-```
+Observação (diagnóstico via SSH)
+        │
+        ▼
+Detecção de anomalia (auditoria LPIC-1 + métricas)
+        │
+        ▼
+Decisão (gerar playbook idempotente)
+        │
+        ▼
+Validação (ansible-lint + --check --diff + HITL)
+        │
+        ▼
+Execução (ansible-playbook aplicação)
+        │
+        ▼
+Verificação (pós-aplicação + critério de validação)
+        │
+        └──────────────────────► volta à Observação
 
 ---
 
@@ -547,6 +690,7 @@ Antes de considerar um playbook pronto para produção:
 - [ ] Aprovação via human-in-the-loop (HITL) confirmada pelo operador
 - [ ] Plano de reversão documentado
 - [ ] Critério de validação definido no relatório técnico
+
 ---
 
 ## Referências
